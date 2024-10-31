@@ -6,7 +6,10 @@ import pandas as pd
 
 
 def detect_feature_types(dataset: Dataset) -> List[Feature]:
-    """Assumption: only categorical and numerical features and no NaN values.
+    """
+    Assumption: only categorical and numerical features and no NaN values.
+    This function is used to detect is the feature types are numerical
+    or categorical.
     Args:
         dataset: Dataset
     Returns:
@@ -16,9 +19,21 @@ def detect_feature_types(dataset: Dataset) -> List[Feature]:
     df = dataset.read()
 
     for column in df.columns:
-        if pd.api.types.is_numeric_dtype(df[column]):
-            features.append(Feature(name=column, type="numerical"))
-        elif pd.api.types.is_string_dtype(df[column]):
-            features.append(Feature(name=column, type="categorical"))
-
+        feature_type = _detect_feature_type(df[column])
+        features.append(Feature(name=column, type=feature_type))
     return features
+
+
+def _detect_feature_type(column):
+    """
+    This helper method is used to determine the feature type of one column
+    at a time.
+    """
+    if pd.api.types.is_numeric_dtype(column):
+        return "numerical"
+    # nunique number could bring problems depending on the dataset so look
+    # over it once we have datasets
+    elif pd.api.types.is_string_dtype(column) or column.nunique() < 5:
+        return "categorical"
+    else:
+        raise TypeError(f"Unsupported feature type: {type(column)}")

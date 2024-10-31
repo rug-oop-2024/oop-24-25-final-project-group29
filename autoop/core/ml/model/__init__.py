@@ -7,7 +7,7 @@ from autoop.core.ml.model.regression import (
 )
 from autoop.core.ml.model.classification import (
     logistic_regression_model as LogisticRegressionModel,
-    KNNModel,
+    knn_regression_model as KNNModel,
     DecisionTreeModel,
 )
 
@@ -53,6 +53,7 @@ def get_model(model_name: str) -> Model:
             return LogisticRegressionModel()
         elif model_name == "knn_regression":
             return KNNModel()
+        # better not to do decision tree it looks bery hard
         elif model_name == "decision_tree":
             return DecisionTreeModel()
     else:
