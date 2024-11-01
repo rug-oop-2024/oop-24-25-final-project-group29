@@ -14,6 +14,7 @@ class LogisticRegressionModel(Model):
         max_iter: int
             The maximum iterations
         """
+        super().__init__(model_type="classification")
         self.learning_rate = learning_rate
         self.max_iter = max_iter
         self.coef = None
@@ -75,3 +76,36 @@ class LogisticRegressionModel(Model):
             The sigmoid output
         """
         return 1 / (1 + np.exp(-x))
+
+    def _save_model(self) -> bytes:
+        """
+        serialize model parameters to bytes
+
+        returns:
+        bytes
+            The serialized model parameters
+        """
+        coeficient_bytes = self.coef.tobytes()
+        intercept_bytes = np.array(self.intercept, dtype=np.float32).tobytes()
+
+        metadata = np.array([self.coef.shape[0]], dtype=np.int32).tobytes()
+        return metadata + coeficient_bytes + intercept_bytes
+
+    def _load_model(self, parameters: bytes) -> None:
+        """
+        Deserialize the model parameters from bytes.
+
+        Parameters
+        ----------
+        parameters : bytes
+            The serialized model parameters.
+        """
+        metadata = np.frombuffer(parameters[:4], dtype=np.int32)
+        amount_features = metadata[0]
+
+        self.coef = np.frombuffer(
+            parameters[4:4 + amount_features * 4], dtype=np.float32
+        )
+        self.intercept = np.frombuffer(
+            parameters[4 + amount_features * 4:], dtype=np.float32
+        )[0]

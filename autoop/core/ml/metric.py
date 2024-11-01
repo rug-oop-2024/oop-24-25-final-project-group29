@@ -192,18 +192,24 @@ class precision(Metric):
             self, ground_truth: np.ndarray, prediction: np.ndarray
             ) -> float:
         """
-        Finds the precision as a ratio of true positives to
-        true + false positives.
+        Macro average precision in order to be used for more than 2 classes.
+        This method calculates the average of each class and then averages.
         """
-        true_positives = np.sum((ground_truth == 1) & (prediction == 1))
-        false_positives = np.sum((ground_truth == 0) & (prediction == 1))
-        true_false_positives = true_positives + false_positives
+        classes = np.unique(ground_truth)
+        precision = []
 
-        # in order not to divide by 0
-        if true_false_positives == 0:
-            return 0.0
-        else:
-            return true_positives / true_false_positives
+        for class_ in classes:
+            true_pos = np.sum(
+                (ground_truth == class_) & (prediction == class_)
+                )
+            pred_pos = np.sum(prediction == class_)
+
+            if pred_pos == 0:
+                precision.append(0.0)
+            else:
+                precision.append(true_pos / pred_pos)
+
+        return np.mean(precision)
 
     def name(self) -> str:
         return "precision"

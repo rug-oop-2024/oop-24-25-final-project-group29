@@ -14,7 +14,7 @@ class KNNRegressionModel(Model):
         return self.parameters
 
     def __init__(self, k=3):
-        super().__init__()
+        super().__init__(model_type="classification")
         self.k = k
         self.parameters = {}
 
@@ -30,6 +30,8 @@ class KNNRegressionModel(Model):
         """
         self.parameters['observations'] = x
         self.parameters['ground truths'] = y
+        self.amount_observations = x.shape[0]
+        self.amount_features = x.shape[1]
 
     def predict(self, observation: np.ndarray) -> np.ndarray:
         """
@@ -68,3 +70,37 @@ class KNNRegressionModel(Model):
             ]
         most_common = Counter(k_nearest_labels).most_common()
         return most_common[0][0]
+
+    def _save_model(self) -> bytes:
+        observations = self.parameters["Observations"]
+        ground_truths = self.parameters["Ground truth"]
+        observations_bytes = observations.tobytes()
+        ground_truths_bytes = ground_truths.tobytes()
+
+        metadata = np.array(
+            [self.amount_observations, self.amount_features], dtype=np.int32
+            ).tobytes()
+        return metadata + observations_bytes + ground_truths_bytes
+
+    def _load_model(self, parameters: bytes) -> None:
+        # how many bites to read from the metadata
+        metadata_size = 4 * 2
+        metadata = np.frombuffer(parameters[:metadata_size], dtype=np.int32)
+        self.amount_observations, self.amount_features = metadata
+
+        observations = np.frombuffer(
+            parameters[
+                metadata_size:metadata_size
+                + self.amount_observations * self.amount_features * 4
+                ], dtype=np.float32
+                )
+        ground_truths = np.frombuffer(
+            parameters[
+                metadata_size + self.amount_observations
+                * self.amount_features * 4:
+                ], dtype=np.float32
+                )
+        self.parameters["Observations"] = observations.reshape(
+            self.amount_observations, self.amount_features
+            )
+        self.parameters["Ground truth"] = ground_truths

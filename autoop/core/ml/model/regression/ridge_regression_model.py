@@ -14,6 +14,7 @@ class RidgeRegressionModel(Model):
         alpha: float
             The regularization strenght
         """
+        super().__init__(model_type="regression")
         self.alpha = alpha
         self.coef = None
         self.intercept = None
@@ -54,3 +55,20 @@ class RidgeRegressionModel(Model):
 
         x_with_ones = np.c_[np.ones(x.shape[0], 1), x]
         return x_with_ones @ self.coef
+
+    def _save_model(self) -> bytes:
+        """
+        Saves the model parameters to a binary format.
+        """
+        parameters = np.array(
+            [self.intercept] + list(self.coef)
+            ).astype(np.float32)
+        return parameters.tobytes()
+
+    def _load_model(self, parameters: bytes) -> None:
+        """
+        Load the model parameters from a binary format.
+        """
+        parameters = np.frombuffer(parameters, dtype=np.float32)
+        self.intercept = parameters[0]
+        self.coef = parameters[1:]

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from autoop.core.ml.artifact import Artifact
 import numpy as np
 from copy import deepcopy
-from typing import Literal
+from typing import Literal, Dict
 
 
 class Model(ABC):
@@ -17,13 +17,13 @@ class Model(ABC):
     predict(X: np.ndarray) -> np.ndarray:
         Makes predictions on given data.
     """
-    # IDK HOW WE WANT THESE IF DICT OR DIFFERENT (ITS FROM OUR ASSINGMENT 1)
-    # _parameters: Dict[str, np.ndarray] = PrivateAttr()
+    def __init__(self, model_type: Literal["regression", "classification"]):
+        self.model_type = model_type
+        self._parameters: Dict[str, np.ndarray] = {}
 
-    # @property
-    # @abstractmethod
-    # def parameters(self) -> Dict[str, np.ndarray]:
-    #     pass
+    @property
+    def parameters(self) -> Dict[str, np.ndarray]:
+        return deepcopy(self._parameters)
 
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
@@ -33,11 +33,45 @@ class Model(ABC):
     def predict(self, X: np.ndarray) -> np.ndarray:
         pass
 
-    # ONLY IMPLEMENT WHEN I DO SAVERS
-    # @abstractmethod
-    # def save(self, path: str) -> None:
-    #     pass
+    @abstractmethod
+    def save(self, path: str) -> None:
+        """
+        Saves the model to an artifact
 
-    # @abstractmethod
-    # def load(self, path: str) -> None:
-    #     pass
+        parameters:
+        path: str
+            The path to save the model on
+        """
+        artifact = Artifact(
+            name=self.__class__.__name__,
+            type="model",
+            metadata={self.model_type}
+            )
+        artifact.data = self._save_model()
+        artifact.save(path)
+
+    @abstractmethod
+    def load(self, path: str) -> None:
+        """
+        Load the model from an artifact
+
+        parameters:
+        path: str
+            The path to load the model from
+        """
+        artifact = Artifact.load(path)
+        self._load_model(artifact.data)
+
+    @abstractmethod
+    def _save_model(self) -> bytes:
+        """
+        Saves the model's parameters to a binary type
+        """
+        pass
+
+    @abstractmethod
+    def _load_model(self, data: bytes) -> None:
+        """
+        Loads the model's parameters from a binary type data
+        """
+        pass

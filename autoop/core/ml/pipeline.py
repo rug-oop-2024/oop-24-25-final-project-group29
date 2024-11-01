@@ -137,24 +137,34 @@ Pipeline(
         self._predictions = predictions
 
     def execute(self):
+        """
+        Executes a full pipeline. By preprocessing features, splitting the data,
+        training the model and evaluating it on both train and test sets.
+
+        returns:
+        dict
+            A dictionary with train and test set predictions and metrics.
+        """
         self._preprocess_features()
         self._split_data()
         self._train()
 
-        testset_eval = self._evaluate()
+        self._evaluate()
+        testset_metrics = self._metrics_results
+        testset_predictions = self._predictions
 
-        trainset_eval = self._model.predict(
+        trainset_predictions = self._model.predict(
             self._compact_vectors(self._train_X)
-            )
-        trainset_metric = [
+        )
+        trainset_metrics = [
             (metric, metric.evaluate(
-                trainset_eval, self._train_y
+                trainset_predictions, self._train_y
                 )) for metric in self._metrics
             ]
 
         return {
-            "train metrics": trainset_metric,
-            "test metrics": self._metrics_results,
-            "train predictions": trainset_eval,
-            "test predictions": testset_eval
+            "train metrics": trainset_metrics,
+            "test metrics": testset_metrics,
+            "train predictions": trainset_predictions,
+            "test predictions": testset_predictions
         }

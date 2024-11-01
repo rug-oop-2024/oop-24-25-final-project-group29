@@ -7,6 +7,7 @@ class LinearRegressionModel(Model):
     A model that performs linear regression.
     """
     def __init__(self):
+        super().__init__(model_type="regression")
         self.coef = None
         self.intercept = None
 
@@ -42,3 +43,20 @@ class LinearRegressionModel(Model):
 
         x_with_ones = np.c_[np.ones(x.shape[0], 1), x]
         return x_with_ones @ self.coef
+
+    def _save_model(self) -> bytes:
+        """
+        Saves the model parameters to a binary type
+        """
+        parameters = np.array(
+            [self.intercept] + list(self.coef)
+            ).astype(np.float32)
+        return parameters.tobytes()
+
+    def _load_model(self, parameters: bytes) -> None:
+        """
+        Load the model parameters from a binary type
+        """
+        parameters = np.frombuffer(parameters, dtype=np.float32)
+        self.intercept = parameters[0]
+        self.coef = parameters[1:]

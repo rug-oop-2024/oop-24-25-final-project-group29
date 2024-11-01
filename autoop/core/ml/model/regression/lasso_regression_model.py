@@ -11,6 +11,7 @@ class LassoRegressionModel(Model):
         alpha: float
             The regularization strenght
         """
+        super().__init__(model_type="regression")
         self.alpha = alpha
         self.coef = None
         self.intercept = None
@@ -70,3 +71,20 @@ class LassoRegressionModel(Model):
             raise RuntimeError("Model has not been fit")
 
         return x @ self.coef + self.intercept
+
+    def _save_model(self) -> bytes:
+        """
+        Saves the model parameters to a binary type
+        """
+        parameters = np.array(
+            [self.intercept] + list(self.coef)
+            ).astype(np.float32)
+        return parameters.tobytes()
+
+    def _load_model(self, parameters: bytes) -> None:
+        """
+        Load the model parameters from a binary type
+        """
+        parameters = np.frombuffer(parameters, dtype=np.float32)
+        self.intercept = parameters[0]
+        self.coef = parameters[1:]

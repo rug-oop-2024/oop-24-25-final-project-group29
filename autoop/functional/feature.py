@@ -30,10 +30,10 @@ def _detect_feature_type(column):
     at a time.
     """
     if pd.api.types.is_numeric_dtype(column):
+        if column.nunique() > 5:
+            return "categorical"
         return "numerical"
-    # nunique number could bring problems depending on the dataset so look
-    # over it once we have datasets
-    elif pd.api.types.is_string_dtype(column) or column.nunique() < 5:
+    elif pd.api.types.is_string_dtype(column):
         return "categorical"
     else:
         raise TypeError(f"Unsupported feature type: {type(column)}")
