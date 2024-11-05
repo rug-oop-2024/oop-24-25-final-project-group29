@@ -7,13 +7,13 @@ from typing import List
 
 
 class ArtifactRegistry():
-    def __init__(self, 
+    def __init__(self,
                  database: Database,
-                 storage: Storage):
+                 storage: Storage) -> None:
         self._database = database
         self._storage = storage
 
-    def register(self, artifact: Artifact):
+    def register(self, artifact: Artifact) -> None:
         # save the artifact in the storage
         self._storage.save(artifact.data, artifact.asset_path)
         # save the metadata in the database

@@ -13,7 +13,10 @@ METRICS = [
 ]
 
 
-def get_metric(name: str):
+def get_metric(
+        name: str,
+        ground_truth: np.ndarray,
+        prediction: np.ndarray) -> float:
     """
     Factory function to get a metric by name.
 
@@ -26,17 +29,17 @@ def get_metric(name: str):
         instance of its given string name
     """
     if name == "mean_squared_error":
-        return mean_squared_error()
+        return mean_squared_error(ground_truth, prediction)
     elif name == "accuracy":
-        return accuracy()
+        return accuracy(ground_truth, prediction)
     elif name == "mean_absolute_error":
-        return mean_absolute_error()
+        return mean_absolute_error(ground_truth, prediction)
     elif name == "auc_roc":
-        return auc_roc()
+        return auc_roc(ground_truth, prediction)
     elif name == "r_squared":
-        return r_squared()
+        return r_squared(ground_truth, prediction)
     elif name == "precision":
-        return precision()
+        return precision(ground_truth, prediction)
     else:
         raise ValueError(
             f"No metric called: {name}, Can only do metrics: {METRICS}"

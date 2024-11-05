@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 import base64
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 
 
 class Artifact(BaseModel):
@@ -22,41 +22,11 @@ class Artifact(BaseModel):
     """
     name: str = Field(..., description="Artifact Name")
     type: str = Field(..., description="Artifact Type")
-    _path: Optional[str] = Field(None, description="Artifact Path")
-    _data: Optional[bytes] = Field(None, description="Artifact Data")
-    metadata: Optional[Dict] = Field(
-        None, description="Artifact Metadata"
+    path: Optional[str] = Field(None, description="Artifact Path")
+    data: Optional[bytes] = Field(None, description="Artifact Data")
+    metadata: Optional[Dict[str, Any]] = Field(
+        default_factory=dict, description="Artifact Metadata"
         )
-
-    @property
-    def path(self) -> Optional[str]:
-        """
-        getter for artifact path
-        """
-        return self._path
-
-    @path.setter
-    def path(self, value: str) -> None:
-        """
-        Setter for artifact path
-        """
-        self._path = value
-
-    @property
-    def data(self) -> Optional[bytes]:
-        """
-        getter for artifact data
-        """
-        return self._data
-
-    @data.setter
-    def data(self, value: bytes) -> None:
-        """
-        Setter for artifact data
-        """
-        if not isinstance(value, bytes):
-            raise TypeError("Data must be in format: bytes")
-        self._data = value
 
     def encoder(self) -> str:
         """
@@ -65,9 +35,9 @@ class Artifact(BaseModel):
         Returns:
         str: Base64 encoded string of the artifact data
         """
-        if self.data is not None:
-            return base64.b64encode(self.data).decode("utf-8")
-        raise ValueError("No data to encode")
+        if self.data is None:
+            raise ValueError("No data to encode")
+        return base64.b64encode(self.data).decode("utf-8")
 
     def decoder(self, encoded_data: str) -> None:
         """
@@ -77,7 +47,10 @@ class Artifact(BaseModel):
         encoded_data: str
             Base 64 encoded string of artifact data
         """
-        self.data = base64.b64decode(encoded_data.encode("utf-8"))
+        try:
+            self.data = base64.b64decode(encoded_data.encode("utf-8"))
+        except Exception as e:
+            raise ValueError(f"Failed to decode artifact data: {e}")
 
     def save(self, path: str) -> None:
         """
@@ -87,10 +60,10 @@ class Artifact(BaseModel):
         path: str
             The path to save the artifact data on
         """
-        if self._data is not None:
+        if self.data is not None:
             with open(path, 'wb') as file:
-                file.write(self._data)
-            self._path = path
+                file.write(self.data)
+            self.path = path
         else:
             raise ValueError("No data to save")
 
@@ -102,9 +75,12 @@ class Artifact(BaseModel):
         path: str
             The path to load the artifact data from
         """
-        with open(path, 'rb') as file:
-            self._data = file.read()
-        self._path = path
+        try:
+            with open(path, 'rb') as file:
+                self.data = file.read()
+            self.path = path
+        except Exception as e:
+            raise IOError(f"Failed to load artifact data: {e}")
 
     def to_dictionary(self) -> dict:
         """
@@ -116,8 +92,8 @@ class Artifact(BaseModel):
         return {
             "name": self.name,
             "type": self.type,
-            "path": self._path,
-            "data": self.encoder() if self._data is not None else None,
+            "path": self.path,
+            "data": self.encoder() if self.data is not None else None,
             "metadata": self.metadata
         }
 
