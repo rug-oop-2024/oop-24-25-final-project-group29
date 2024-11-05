@@ -60,12 +60,12 @@ class Metric(ABC):
         Returns the name of the metric.
     """
     @abstractmethod
-    def __call__(self, ground_truth: Any, prediction: Any) -> float:
+    def __call__(self, ground_truth: np.ndarray, prediction: np.ndarray) -> float:
         """
         Calculates the metric given the ground truth and prediction.
 
         Args:
-        ground_truth: (
+        ground_truth: Any
             The ground truths (x) of the model.
         prediction: Any
             The predictions (y) of the model.

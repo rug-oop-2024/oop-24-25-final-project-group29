@@ -29,30 +29,6 @@ class Artifact(BaseModel):
         )
     type: Optional[str] = Field(None, description="Artifact Type")
 
-    def encode(self) -> str:
-        """
-        Encodes the artifact's binary data
-
-        Returns:
-        str: Base64 encoded string of the artifact data
-        """
-        if self.data is None:
-            raise ValueError("No data to encode")
-        return base64.b64encode(self.data).decode("utf-8")
-
-    def decode(self, encoded_data: str) -> None:
-        """
-        Decodes the base64 encoded data string into binary data.
-
-        parameters:
-        encoded_data: str
-            Base 64 encoded string of artifact data
-        """
-        try:
-            self.data = base64.b64decode(encoded_data.encode("utf-8"))
-        except Exception as e:
-            raise ValueError(f"Failed to decode artifact data: {e}")
-
     def save(self, data: bytes) -> None:
         """
         Saves the artifact binary data to a given path.

@@ -33,7 +33,6 @@ class Model(ABC):
     def predict(self, X: np.ndarray) -> np.ndarray:
         pass
 
-    @abstractmethod
     def save(self, path: str) -> None:
         """
         Saves the model to an artifact
@@ -50,7 +49,6 @@ class Model(ABC):
         artifact.data = self._save_model()
         artifact.save(path)
 
-    @abstractmethod
     def load(self, path: str) -> None:
         """
         Load the model from an artifact
@@ -59,7 +57,7 @@ class Model(ABC):
         path: str
             The path to load the model from
         """
-        artifact = Artifact.load(path)
+        artifact = Artifact.read(path)
         self._load_model(artifact.data)
 
     @abstractmethod

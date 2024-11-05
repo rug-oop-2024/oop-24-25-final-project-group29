@@ -1,11 +1,12 @@
 import numpy as np
 
+from autoop.core.ml.model.model import Model
 from autoop.core.ml.model.regression.lasso_regression_model import LassoRegressionModel
 from autoop.core.ml.model.regression.linear_regression_model import LinearRegressionModel
 from autoop.core.ml.model.regression.ridge_regression_model import RidgeRegressionModel
 
 
-class regressionFacade:
+class RegressionFacade(Model):
     """
     A facade for the regression models for simplified user interface.
     """
