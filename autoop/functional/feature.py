@@ -30,8 +30,6 @@ def _detect_feature_type(column):
     at a time.
     """
     if pd.api.types.is_numeric_dtype(column):
-        if column.nunique() > 5:
-            return "categorical"
         return "numerical"
     elif pd.api.types.is_string_dtype(column):
         return "categorical"

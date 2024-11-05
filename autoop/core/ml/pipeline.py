@@ -138,8 +138,9 @@ Pipeline(
 
     def execute(self):
         """
-        Executes a full pipeline. By preprocessing features, splitting the data,
-        training the model and evaluating it on both train and test sets.
+        Executes a full pipeline. By preprocessing features, splitting
+        the data, training the model and evaluating it on both train
+        and test sets.
 
         returns:
         dict
