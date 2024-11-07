@@ -16,8 +16,17 @@ class Model(ABC):
 
     predict(X: np.ndarray) -> np.ndarray:
         Makes predictions on given data.
+
+    save(path: str) -> None:
+        Saves the model to an artifact
+
+    load(path: str) -> None:
+        Loads the model from an artifact
     """
     def __init__(self, model_type: Literal["regression", "classification"]):
+        """
+        Initializes the model type and parameters.
+        """
         self._model_type = model_type
         self._parameters: Dict[str, np.ndarray] = {}
 
@@ -30,6 +39,9 @@ class Model(ABC):
 
     @property
     def parameters(self) -> Dict[str, np.ndarray]:
+        """
+        Returns a deepcopy of the model parameters.
+        """
         return deepcopy(self._parameters)
 
     @parameters.setter
@@ -42,7 +54,6 @@ class Model(ABC):
             Dictionary of model parameters.
         """
         self._parameters = deepcopy(parameters)
-        
 
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
