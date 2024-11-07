@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Any
 import numpy as np
 
 
@@ -14,9 +13,7 @@ METRICS = [
 
 
 def get_metric(
-        name: str,
-        ground_truth: np.ndarray,
-        prediction: np.ndarray) -> float:
+        name: str) -> float:
     """
     Factory function to get a metric by name.
 
@@ -29,17 +26,17 @@ def get_metric(
         instance of its given string name
     """
     if name == "mean_squared_error":
-        return mean_squared_error(ground_truth, prediction)
+        return MeanSquaredError()
     elif name == "accuracy":
-        return accuracy(ground_truth, prediction)
+        return Accuracy()
     elif name == "mean_absolute_error":
-        return mean_absolute_error(ground_truth, prediction)
+        return MeanAbsoluteError()
     elif name == "auc_roc":
-        return auc_roc(ground_truth, prediction)
+        return AucRoc()
     elif name == "r_squared":
-        return r_squared(ground_truth, prediction)
+        return Rsquared()
     elif name == "precision":
-        return precision(ground_truth, prediction)
+        return Precision()
     else:
         raise ValueError(
             f"No metric called: {name}, Can only do metrics: {METRICS}"
@@ -60,7 +57,9 @@ class Metric(ABC):
         Returns the name of the metric.
     """
     @abstractmethod
-    def __call__(self, ground_truth: np.ndarray, prediction: np.ndarray) -> float:
+    def __call__(
+        self, ground_truth: np.ndarray, prediction: np.ndarray
+            ) -> float:
         """
         Calculates the metric given the ground truth and prediction.
 
@@ -82,8 +81,15 @@ class Metric(ABC):
         """
         pass
 
+    def evaluate(self, prediction, y) -> float:
+        """
+        Gets the metric and uses the functions __call__ and name from the
+        specific metric to calculate the metric value.
+        """
+        return self.__call__(y, prediction)
 
-class mean_squared_error(Metric):
+
+class MeanSquaredError(Metric):
     """
     Metric 1 for regression.
     Class to claculate the mean squared error.
@@ -100,7 +106,7 @@ class mean_squared_error(Metric):
         return "mean_squared_error"
 
 
-class accuracy(Metric):
+class Accuracy(Metric):
     """
     Metric 1 for classification.
     Class to calculate the accuracy.
@@ -117,7 +123,7 @@ class accuracy(Metric):
         return "accuracy"
 
 
-class mean_absolute_error(Metric):
+class MeanAbsoluteError(Metric):
     """
     Metric 2 for regression.
     Class to calculate the mean absolute error.
@@ -135,7 +141,7 @@ class mean_absolute_error(Metric):
         return "mean_absolute_error"
 
 
-class auc_roc(Metric):
+class AucRoc(Metric):
     """
     Metric 2 for classification.
     Class to calculate the auc_roc
@@ -146,25 +152,35 @@ class auc_roc(Metric):
         """
         Finds the auc_roc value by using the trapezoid rule.
         """
-        sorted_prediction = np.sort(prediction)
-        sorted_ground_truth = ground_truth[sorted_prediction]
+        sorted_indices = np.argsort(prediction)[::-1]
+        sorted_ground_truth = ground_truth[sorted_indices]
 
-        cummulative_sum_t = np.cumsum(sorted_ground_truth)
-        sum_t = np.sum(sorted_ground_truth)
-        true_pos_rate = cummulative_sum_t / sum_t
+        # Compute cumulative true positives and false positives
+        true_positives = np.cumsum(sorted_ground_truth)
+        false_positives = np.cumsum(1 - sorted_ground_truth)
 
-        cummulative_sum_f = np.cumsum(1 - sorted_ground_truth)
-        sum_f = np.sum(1 - sorted_ground_truth)
-        falst_pos_rate = cummulative_sum_f / sum_f
+        # Calculate TPR and FPR for each threshold
+        total_positives = true_positives[-1]
+        total_negatives = false_positives[-1]
+        if total_positives > 0:
+            true_positive_rate = true_positives / total_positives
+        else:
+            np.zeros_like(true_positives)
 
-        auc = np.trapezoid(true_pos_rate, falst_pos_rate)
+        if total_negatives > 0:
+            false_positive_rate = false_positives / total_negatives
+        else:
+            np.zeros_like(false_positives)
+
+        # Calculate AUC using trapezoidal integration on the TPR vs FPR
+        auc = np.trapz(true_positive_rate, x=false_positive_rate)
         return auc
 
     def name(self) -> str:
         return "auc_roc"
 
 
-class r_squared(Metric):
+class Rsquared(Metric):
     """
     Metric 3 for regression.
     Class to calculate the r_squared.
@@ -186,7 +202,7 @@ class r_squared(Metric):
         return "r_squared"
 
 
-class precision(Metric):
+class Precision(Metric):
     """
     Metric 3 for classification.
     Class to calculate the precision.
