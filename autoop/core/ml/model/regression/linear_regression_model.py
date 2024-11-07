@@ -8,8 +8,30 @@ class LinearRegressionModel(Model):
     """
     def __init__(self):
         super().__init__(model_type="regression")
-        self.coef = None
-        self.intercept = None
+        self._coef = None
+        self._intercept = None
+
+    @property
+    def coef(self) -> np.ndarray:
+        """
+        The model coefficients property decorator.
+
+        returns:
+        np.ndarray
+            The coefficients of the linear regression model.
+        """
+        return self._coef
+
+    @property
+    def intercept(self) -> float:
+        """
+        The model intercept.
+
+        returns:
+        float
+            The intercept of the linear regression model.
+        """
+        return self._intercept
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """
@@ -22,10 +44,10 @@ class LinearRegressionModel(Model):
             The predictions
         """
         X_with_ones = np.c_[np.ones(x.shape[0], 1), x]
-        self.coef = np.linalg.inv(
+        self._coef = np.linalg.inv(
             X_with_ones.T @ X_with_ones
             ) @ X_with_ones.T @ y
-        self.intercept = self.coef[0]
+        self._intercept = self._coef[0]
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         """
@@ -38,18 +60,18 @@ class LinearRegressionModel(Model):
         np.ndarray
             The predictions
         """
-        if self.coef is None:
+        if self._coef is None:
             raise RuntimeError("Model has not been fit")
 
-        x_with_ones = np.c_[np.ones(x.shape[0], 1), x]
-        return x_with_ones @ self.coef
+        x_with_ones = np.c_[np.ones((x.shape[0], 1)), x]
+        return x_with_ones @ self._coef
 
     def _save_model(self) -> bytes:
         """
         Saves the model parameters to a binary type
         """
         parameters = np.array(
-            [self.intercept] + list(self.coef)
+            [self._intercept] + list(self._coef)
             ).astype(np.float32)
         return parameters.tobytes()
 
@@ -58,5 +80,5 @@ class LinearRegressionModel(Model):
         Load the model parameters from a binary type
         """
         parameters = np.frombuffer(parameters, dtype=np.float32)
-        self.intercept = parameters[0]
-        self.coef = parameters[1:]
+        self._intercept = parameters[0]
+        self._coef = parameters[1:]

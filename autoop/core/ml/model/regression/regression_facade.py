@@ -21,13 +21,41 @@ class RegressionFacade(Model):
         alpha: float
             The regularization strength if any
         """
-        self.model_type = model_type.lower()
-        self.alpha = alpha
-        self.model = self._create_model()
+        super().__init__(model_type="regression")
+        self._model_type = model_type.lower()
+        self._alpha = alpha
+        self._model = self._create_model()
+
+    @property
+    def model_type(self):
+        """
+        Returns the type of the regression model
+        """
+        return self._model_type
+    
+    @property
+    def alpha(self):
+        """
+        Returns the regularization strength alpha if any
+        """
+        return self._alpha
+    
+    @property
+    def model(self):
+        """
+        Returns the model instance or creates if there is none.
+        """
+        if self._model is None:
+            self._model = self._create_model()
+        return self._model
 
     def _create_model(self):
         """
         Creates the appropriate model based on the model type
+
+        Returns:
+        Model
+            The model instance for the specific model type
         """
         if self.model_type == "linear":
             return LinearRegressionModel()

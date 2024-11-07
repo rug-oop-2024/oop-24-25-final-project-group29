@@ -6,8 +6,8 @@ from autoop.core.ml.model.regression import (
     MultipleLinearRegression
 )
 from autoop.core.ml.model.classification import (
-    logistic_regression_model as LogisticRegressionModel,
-    knn_regression_model as KNNModel,
+    knn_classification_model as KNNModel,
+    logistic_classification_model as LogisticRegressionModel,
     DecisionTreeModel,
 )
 

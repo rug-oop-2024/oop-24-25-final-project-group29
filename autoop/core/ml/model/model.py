@@ -18,12 +18,31 @@ class Model(ABC):
         Makes predictions on given data.
     """
     def __init__(self, model_type: Literal["regression", "classification"]):
-        self.model_type = model_type
+        self._model_type = model_type
         self._parameters: Dict[str, np.ndarray] = {}
+
+    @property
+    def model_type(self) -> str:
+        """
+        Returns the model type.
+        """
+        return self._model_type
 
     @property
     def parameters(self) -> Dict[str, np.ndarray]:
         return deepcopy(self._parameters)
+
+    @parameters.setter
+    def parameters(self, parameters: Dict[str, np.ndarray]) -> None:
+        """
+        Sets model parameters.
+
+        Parameters:
+        params: dict
+            Dictionary of model parameters.
+        """
+        self._parameters = deepcopy(parameters)
+        
 
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
