@@ -19,7 +19,6 @@ class Feature(BaseModel):
     type: Literal["numerical", "categorical"] = Field(
         ..., description="Feature Type"
         )
-    # Maybe use type() instead??
 
     @classmethod
     def from_dataframe(

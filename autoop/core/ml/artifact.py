@@ -41,7 +41,8 @@ class Artifact():
         self._metadata = metadata
         self._version = version
         self._tags = tags
-        self._id = f"{base64.b64encode(asset_path.encode).decode()}_{version}"
+        encoded_path = base64.b64encode(asset_path.encode()).decode()
+        self._id = f"{encoded_path.replace("=", "_")}_{version}"
 
     @property
     def name(self) -> str:
@@ -91,9 +92,8 @@ class Artifact():
         if not isinstance(data, bytes):
             raise TypeError("data has to be in bytes")
         self._data = data
-        new_data = data.decode()
-        with open(self.asset_path, 'w') as f:
-            f.write(new_data)
+        with open(self.asset_path, 'wb') as f:
+            f.write(data)
 
     def read(self) -> bytes:
         """
