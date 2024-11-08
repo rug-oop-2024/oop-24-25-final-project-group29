@@ -85,7 +85,6 @@ class Model(ABC):
             name=name,
             data=binary_model,
             type="model",
-            # asset_path="????"
             metadata={self.type}
         )
         return artifact
