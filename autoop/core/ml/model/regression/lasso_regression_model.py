@@ -1,6 +1,6 @@
 import numpy as np
 from autoop.core.ml.model.model import Model
-
+from sklearn.linear_model import Lasso
 
 class LassoRegressionModel(Model):
     def __init__(self, alpha=1.0):
@@ -11,10 +11,9 @@ class LassoRegressionModel(Model):
         alpha: float
             The regularization strenght
         """
-        super().__init__(model_type="regression")
+        super().__init__(type="regression")
         self._alpha = alpha
-        self._coef = None
-        self._intercept = None
+        self.model = Lasso(alpha=self.alpha)
 
     @property
     def alpha(self) -> float:

@@ -1,11 +1,9 @@
 
 from abc import ABC, abstractmethod
+from autoop.core.ml.artifact import Artifact
 import numpy as np
 from copy import deepcopy
 from typing import Literal, Dict
-import pickle
-
-from autoop.core.ml.artifact import Artifact
 
 
 class Model(ABC):
@@ -25,10 +23,10 @@ class Model(ABC):
     load(path: str) -> None:
         Loads the model from an artifact
     """
-    def __init__(
-            self,
-            type: Literal["regression", "classification"]
-            ) -> None:
+    def __init__(self, type: Literal["regression", "classification"]):
+        """
+        Initializes the model type and parameters.
+        """
         self._type = type
         self._parameters: Dict[str, np.ndarray] = {}
 
@@ -44,9 +42,6 @@ class Model(ABC):
         """
         Returns a deepcopy of the model parameters.
         """
-        """
-        Returns a deepcopy of the model parameters.
-        """
         return deepcopy(self._parameters)
 
     @parameters.setter
@@ -58,7 +53,7 @@ class Model(ABC):
         params: dict
             Dictionary of model parameters.
         """
-        self._parameters = parameters
+        self._parameters = deepcopy(parameters)
 
     @abstractmethod
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
@@ -68,29 +63,43 @@ class Model(ABC):
     def predict(self, X: np.ndarray) -> np.ndarray:
         pass
 
-    def to_artifact(self, name: str) -> "Artifact":
+    def save(self, path: str) -> None:
         """
-        Converts the model to an artifact
+        Saves the model to an artifact
 
         parameters:
-        name: str
-            How the artifact should be named
-
-        returns:
-        Artifact
-            An instance of Artifact made from the model
+        path: str
+            The path to save the model on
         """
-        binary_model = pickle.dumps(self)
         artifact = Artifact(
-            name=name,
-            data=binary_model,
+            name=self.__class__.__name__,
             type="model",
-            # asset_path="????"
             metadata={self.type}
-        )
-        return artifact
+            )
+        artifact.data = self._save_model()
+        artifact.save(path)
 
-    @staticmethod
-    def from_artifact(artifact: Artifact) -> "Model":
-        model = pickle.load(artifact.data)
-        return model
+    def load(self, path: str) -> None:
+        """
+        Load the model from an artifact
+
+        parameters:
+        path: str
+            The path to load the model from
+        """
+        artifact = Artifact.read(path)
+        self._load_model(artifact.data)
+
+    @abstractmethod
+    def _save_model(self) -> bytes:
+        """
+        Saves the model's parameters to a binary type
+        """
+        pass
+
+    @abstractmethod
+    def _load_model(self, data: bytes) -> None:
+        """
+        Loads the model's parameters from a binary type data
+        """
+        pass

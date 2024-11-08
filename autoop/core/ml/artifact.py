@@ -28,8 +28,8 @@ class Artifact():
     version: str
         The version of the artifact
     """
-    storage=Storage()
-    db=Database(storage)
+    # storage = Storage()
+    # db = Database(storage)
 
     def __init__(
             self,

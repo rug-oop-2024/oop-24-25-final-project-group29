@@ -1,28 +1,26 @@
 from autoop.core.ml.model.model import Model
 from autoop.core.ml.model.regression import (
-    linear_regression_model as LinearRegressionModel,
     ridge_regression_model as RidgeRegressionModel,
     lasso_regression_model as LassoRegressionModel,
-    MultipleLinearRegression
+    multiple_linear_regression_model as MultipleLinearRegression
 )
 from autoop.core.ml.model.classification import (
     knn_classification_model as KNNModel,
     logistic_classification_model as LogisticRegressionModel,
-    DecisionTreeModel,
+    svm_classification_model as SvmClassificationModel,
 )
 
 
 REGRESSION_MODELS = [
-    "linear_regression",
-    "ridge_regression",
-    "lasso_regression",
-    "multiple_linear_regression"
+    "ridge",
+    "lasso",
+    "mlr"
 ]
 
 CLASSIFICATION_MODELS = [
-    "logistic_regression",
-    "knn_regression",
-    "decision_tree"
+    "logistic",
+    "knn",
+    "svm"
 ]
 
 
@@ -41,8 +39,6 @@ def get_model(model_name: str) -> Model:
     if model_name in REGRESSION_MODELS:
         if model_name == "multiple_linear_regression":
             return MultipleLinearRegression()
-        elif model_name == "linear_regression":
-            return LinearRegressionModel()
         elif model_name == "ridge_regression":
             return RidgeRegressionModel()
         elif model_name == "lasso_regression":
@@ -53,9 +49,8 @@ def get_model(model_name: str) -> Model:
             return LogisticRegressionModel()
         elif model_name == "knn_regression":
             return KNNModel()
-        # better not to do decision tree it looks bery hard
-        elif model_name == "decision_tree":
-            return DecisionTreeModel()
+        elif model_name == "svm":
+            return SvmClassificationModel()
     else:
         raise ValueError(
             f"No model called: {model_name}, Can only do models: {

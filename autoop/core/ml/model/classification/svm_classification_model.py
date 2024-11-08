@@ -11,7 +11,7 @@ class SVMClassificationModel(Model):
         C: float
             The regularization strength
         """
-        super().__init__(model_type="classification")
+        super().__init__(type="classification")
         self.C = C
         self._coef = None
         self._intercept = None
@@ -98,25 +98,25 @@ class SVMClassificationModel(Model):
         decision = np.dot(x, self._coef) + self._intercept
         return np.where(decision >= 0, 1, -1)
 
-    def _save_model(self) -> bytes:
-        """
-        Save the model coefficient and intercept to bytes
-        """
-        coef_in_bytes = self._coef.tobytes()
-        intercept_in_bytes = np.array(
-            self._intercept, dtype=np.float32
-            ).tobytes()
+    # def _save_model(self) -> bytes:
+    #     """
+    #     Save the model coefficient and intercept to bytes
+    #     """
+    #     coef_in_bytes = self._coef.tobytes()
+    #     intercept_in_bytes = np.array(
+    #         self._intercept, dtype=np.float32
+    #         ).tobytes()
 
-        return coef_in_bytes + intercept_in_bytes
+    #     return coef_in_bytes + intercept_in_bytes
 
-    def _load_model(self, data: bytes) -> None:
-        """
-        Loads the model's parameters from a binary type data
-        """
-        amount_features = len(data) // (4 + 4)
-        self._coef = np.frombuffer(
-            data[:amount_features * 4], dtype=np.float32
-            )
-        self._intercept = np.frombuffer(
-            data[amount_features * 4:], dtype=np.float32
-            )[0]
+    # def _load_model(self, data: bytes) -> None:
+    #     """
+    #     Loads the model's parameters from a binary type data
+    #     """
+    #     amount_features = len(data) // (4 + 4)
+    #     self._coef = np.frombuffer(
+    #         data[:amount_features * 4], dtype=np.float32
+    #         )
+    #     self._intercept = np.frombuffer(
+    #         data[amount_features * 4:], dtype=np.float32
+    #         )[0]

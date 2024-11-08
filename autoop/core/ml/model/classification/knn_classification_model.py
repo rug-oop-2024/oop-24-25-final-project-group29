@@ -10,7 +10,7 @@ class KNNClassificationModel(Model):
     and predicting the label of that point based on nearest neighboors.
     """
     def __init__(self, k=3):
-        super().__init__(model_type="classification")
+        super().__init__(type="classification")
         self._k = k
         self._parameters = {}
 
@@ -97,41 +97,41 @@ class KNNClassificationModel(Model):
         most_common = Counter(k_nearest_labels).most_common()
         return most_common[0][0]
 
-    def _save_model(self) -> bytes:
-        """
-        Saves the model parameters to a binary type
-        """
-        observations = self._parameters["observations"]
-        ground_truths = self._parameters["ground truth"]
-        observations_bytes = observations.tobytes()
-        ground_truths_bytes = ground_truths.tobytes()
+    # def _save_model(self) -> bytes:
+    #     """
+    #     Saves the model parameters to a binary type
+    #     """
+    #     observations = self._parameters["observations"]
+    #     ground_truths = self._parameters["ground truth"]
+    #     observations_bytes = observations.tobytes()
+    #     ground_truths_bytes = ground_truths.tobytes()
 
-        metadata = np.array(
-            [self.amount_observations, self.amount_features], dtype=np.int32
-            ).tobytes()
-        return metadata + observations_bytes + ground_truths_bytes
+    #     metadata = np.array(
+    #         [self.amount_observations, self.amount_features], dtype=np.int32
+    #         ).tobytes()
+    #     return metadata + observations_bytes + ground_truths_bytes
 
-    def _load_model(self, parameters: bytes) -> None:
-        """
-        Load the model parameters from a binary type
-        """
-        metadata_size = 4 * 2
-        metadata = np.frombuffer(parameters[:metadata_size], dtype=np.int32)
-        self.amount_observations, self.amount_features = metadata
+    # def _load_model(self, parameters: bytes) -> None:
+    #     """
+    #     Load the model parameters from a binary type
+    #     """
+    #     metadata_size = 4 * 2
+    #     metadata = np.frombuffer(parameters[:metadata_size], dtype=np.int32)
+    #     self.amount_observations, self.amount_features = metadata
 
-        observations = np.frombuffer(
-            parameters[
-                metadata_size:metadata_size
-                + self.amount_observations * self.amount_features * 4
-                ], dtype=np.float32
-                )
-        ground_truths = np.frombuffer(
-            parameters[
-                metadata_size + self.amount_observations
-                * self.amount_features * 4:
-                ], dtype=np.float32
-                )
-        self._parameters["observations"] = observations.reshape(
-            self.amount_observations, self.amount_features
-            )
-        self._parameters["ground truth"] = ground_truths
+    #     observations = np.frombuffer(
+    #         parameters[
+    #             metadata_size:metadata_size
+    #             + self.amount_observations * self.amount_features * 4
+    #             ], dtype=np.float32
+    #             )
+    #     ground_truths = np.frombuffer(
+    #         parameters[
+    #             metadata_size + self.amount_observations
+    #             * self.amount_features * 4:
+    #             ], dtype=np.float32
+    #             )
+    #     self._parameters["observations"] = observations.reshape(
+    #         self.amount_observations, self.amount_features
+    #         )
+    #     self._parameters["ground truth"] = ground_truths
