@@ -1,117 +1,135 @@
-from pydantic import BaseModel, Field
+from typing import Optional
+import os
+import pickle
 import base64
-from typing import Optional, Dict, Any
+
+from autoop.core.storage import Storage
+from autoop.core.database import Database
 
 
-class Artifact(BaseModel):
+class NotFoundError(Exception):
+    def __init__(self, path: str) -> None:
+        super().__init__(f"Path not found: {path}")
+
+
+class Artifact():
     """
     Artifact base class. Used to store and manage artifacts.
 
     Attributes:
     name: str
-        Name of the artifact.
+        Name of the artifact
+    data: bytes
+        The binary data stored in the artifact
     type: str
-        Type of artifact.
-    path: Optional[str]
-        The file path or reference location for the artifact.
-    data: Optional[bytes]
-        The serialized binary data of the artifact, such as pickled objects
-        or encoded files.
-    metadata: Optional[dict]
-        Extra metadata about the artifact's contents.
+        The type of artifact
+    metadata: Optional[set[str]]
+        The metadata of the artifact, optional
+    version: str
+        The version of the artifact
     """
-    name: str = Field(..., description="Artifact Name")
-    type: str = Field(..., description="Artifact Type")
-    path: Optional[str] = Field(None, description="Artifact Path")
-    data: Optional[bytes] = Field(None, description="Artifact Data")
-    metadata: Optional[Dict[str, Any]] = Field(
-        default_factory=dict, description="Artifact Metadata"
-        )
+    storage=Storage()
+    db=Database(storage)
 
-    def encoder(self) -> str:
-        """
-        Encodes the artifact's binary data
+    def __init__(
+            self,
+            name: str,
+            data: bytes,
+            type: Optional[str] = "unknown",
+            asset_path: Optional[str] = None,
+            metadata: Optional[set[str]] = None,
+            version: Optional[str] = "v_1"
+            ) -> None:
+        self._name = name
+        self._data = data
+        self._type = type
+        self._asset_path = asset_path
+        self._metadata = metadata
+        self._version = version
+        self._id = base64.b64encode(version).decode()
 
-        Returns:
-        str: Base64 encoded string of the artifact data
-        """
-        if self.data is None:
-            raise ValueError("No data to encode")
-        return base64.b64encode(self.data).decode("utf-8")
+    @property
+    def data(self) -> bytes:
+        return self._data
 
-    def decoder(self, encoded_data: str) -> None:
-        """
-        Decodes the base64 encoded data string into binary data.
-
-        parameters:
-        encoded_data: str
-            Base 64 encoded string of artifact data
-        """
-        try:
-            self.data = base64.b64decode(encoded_data.encode("utf-8"))
-        except Exception as e:
-            raise ValueError(f"Failed to decode artifact data: {e}")
-
-    def save(self, path: str) -> None:
-        """
-        Saves the artifact binary data to a given path.
-
-        parameters:
-        path: str
-            The path to save the artifact data on
-        """
-        if self.data is not None:
-            with open(path, 'wb') as file:
-                file.write(self.data)
-            self.path = path
-        else:
-            raise ValueError("No data to save")
-
-    def load(self, path: str) -> None:
-        """
-        Load the artifact data from a given path.
-
-        parameters:
-        path: str
-            The path to load the artifact data from
-        """
-        try:
-            with open(path, 'rb') as file:
-                self.data = file.read()
-            self.path = path
-        except Exception as e:
-            raise IOError(f"Failed to load artifact data: {e}")
-
-    def to_dictionary(self) -> dict:
-        """
-        Converts the artifact data to a dictionary.
-
-        returns:
-        dict: A dictionary representation of the artifact data
-        """
+    def _to_dict(self) -> dict:
+        """Convert the Artifact instance to a dictionary."""
         return {
-            "name": self.name,
-            "type": self.type,
-            "path": self.path,
-            "data": self.encoder() if self.data is not None else None,
-            "metadata": self.metadata
+            "name": self._name,
+            "data": base64.b64encode(self._data).decode(),
+            "type": self._type,
+            "metadata": list(self._metadata),
+            "asset_path": self._asset_path,
+            "version": self._version
         }
 
-    @classmethod
-    def from_dictionary(cls, artifact_data: dict) -> "Artifact":
+    @staticmethod
+    def _from_dict(dict: dict) -> "Artifact":
+        """Create an Artifact instance from a dictionary."""
+        data = dict.get("data", "").encode("utf-8")
+        return Artifact(
+            name=dict.get("name"),
+            data=data,
+            asset_path=dict.get("asset_path"),
+            type=dict.get("type"),
+            metadata=set(dict.get("metadata", [])),
+            version=dict.get("version")
+        )
+
+    def save(
+            self,
+            data: Optional[bytes] = None
+            ) -> None:
         """
-        Makes an artifact instance from the dictionary.
+        Saves the artifact instance in a pickle file
 
         parameters:
-        data: dict
-            A dictionary of the artifact data
+        data: Optional[bytes]
+            Optional, if the user wants to change the data in the
+            artifact
+
+        returns:
+            None
         """
-        instance = cls(
-            name=artifact_data["name"],
-            type=artifact_data["type"],
-            path=artifact_data.get("path"),
-            metadata=artifact_data.get("metadata"),
-        )
-        if artifact_data.get("data"):
-            instance.decoder(artifact_data["data"])
-        return instance
+        if not os.path.exists(self._asset_path):
+            raise NotFoundError(self._asset_path)
+        # NOT GOING TO WORK, RELATIVE PATH INSTEAD
+        self._asset_path += (
+            f"\\{self._name.replace(" ", "_")}_"
+            f"{self._version.replace(".", "_")}.pkl"
+            )
+        if data is not None:
+            if not isinstance(data, bytes):
+                raise TypeError("data has to be in bytes")
+            self._data = data
+        with open(self._asset_path, 'wb') as f:
+            pickle.dump(self, f)
+
+    # @staticmethod
+    # def load(path: str) -> "Artifact":
+    #     """
+    #     Load an artifact from a pickle file
+
+    #     parameters:
+    #     path: str
+    #         the path to the location of the pickle file
+
+    #     returns:
+    #     Artifact
+    #         An Artifact instance of the loaded data
+    #     """
+    #     if not os.path.exists(path):
+    #         raise NotFoundError(path)
+    #     with open(path, "rb") as f:
+    #         artifact = pickle.load(f)
+    #     return artifact
+
+    def read(self) -> bytes:
+        """
+        Returns the data stored in the Artifact
+
+        returns:
+        bytes
+            The data stored in the artifact in bytes
+        """
+        return self._data
