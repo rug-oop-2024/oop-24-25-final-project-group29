@@ -4,19 +4,45 @@ from typing import Dict
 from collections import Counter
 
 
-class KNNRegressionModel(Model):
+class KNNClassificationModel(Model):
     """
     Class for detecting the k-nearest neighbors from a specific point
     and predicting the label of that point based on nearest neighboors.
     """
-    @property
-    def parameters(self) -> Dict[str, np.ndarray]:
-        return self.parameters
-
     def __init__(self, k=3):
         super().__init__(model_type="classification")
-        self.k = k
-        self.parameters = {}
+        self._k = k
+        self._parameters = {}
+
+    @property
+    def k(self) -> int:
+        """
+        Returns the k value
+        """
+        return self._k
+
+    @k.setter
+    def k(self, value: int) -> None:
+        """
+        Sets the k value
+        """
+        if value < 1:
+            raise ValueError("k must be greater than 0")
+        self._k = value
+
+    @property
+    def parameters(self) -> Dict[str, np.ndarray]:
+        """
+        Returns the parameters of the model
+        """
+        return self._parameters
+
+    @parameters.setter
+    def parameters(self, value: Dict[str, np.ndarray]) -> None:
+        """
+        Sets the parameters of the model
+        """
+        self._parameters = value
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """
@@ -28,8 +54,8 @@ class KNNRegressionModel(Model):
         y: np.ndarray
             The predictions
         """
-        self.parameters['observations'] = x
-        self.parameters['ground truths'] = y
+        self._parameters['observations'] = x
+        self._parameters['ground truths'] = y
         self.amount_observations = x.shape[0]
         self.amount_features = x.shape[1]
 
@@ -62,18 +88,21 @@ class KNNRegressionModel(Model):
         """
         # I GOT FROM ASSIGNMENT 1
         distances = np.linalg.norm(
-            self.parameters["Observations"] - observation, axis=1
+            self._parameters["observations"] - observation, axis=1
             )
         k_indices = np.argsort(distances)[:self.k]
         k_nearest_labels = [
-            self.parameters["Ground truth"][i] for i in k_indices
+            self._parameters["ground truth"][i] for i in k_indices
             ]
         most_common = Counter(k_nearest_labels).most_common()
         return most_common[0][0]
 
     def _save_model(self) -> bytes:
-        observations = self.parameters["Observations"]
-        ground_truths = self.parameters["Ground truth"]
+        """
+        Saves the model parameters to a binary type
+        """
+        observations = self._parameters["observations"]
+        ground_truths = self._parameters["ground truth"]
         observations_bytes = observations.tobytes()
         ground_truths_bytes = ground_truths.tobytes()
 
@@ -83,7 +112,9 @@ class KNNRegressionModel(Model):
         return metadata + observations_bytes + ground_truths_bytes
 
     def _load_model(self, parameters: bytes) -> None:
-        # how many bites to read from the metadata
+        """
+        Load the model parameters from a binary type
+        """
         metadata_size = 4 * 2
         metadata = np.frombuffer(parameters[:metadata_size], dtype=np.int32)
         self.amount_observations, self.amount_features = metadata
@@ -100,7 +131,7 @@ class KNNRegressionModel(Model):
                 * self.amount_features * 4:
                 ], dtype=np.float32
                 )
-        self.parameters["Observations"] = observations.reshape(
+        self._parameters["observations"] = observations.reshape(
             self.amount_observations, self.amount_features
             )
-        self.parameters["Ground truth"] = ground_truths
+        self._parameters["ground truth"] = ground_truths

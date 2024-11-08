@@ -18,6 +18,12 @@ class Model(ABC):
 
     predict(X: np.ndarray) -> np.ndarray:
         Makes predictions on given data.
+
+    save(path: str) -> None:
+        Saves the model to an artifact
+
+    load(path: str) -> None:
+        Loads the model from an artifact
     """
     def __init__(
             self,
@@ -35,6 +41,9 @@ class Model(ABC):
 
     @property
     def parameters(self) -> Dict[str, np.ndarray]:
+        """
+        Returns a deepcopy of the model parameters.
+        """
         """
         Returns a deepcopy of the model parameters.
         """
