@@ -77,7 +77,7 @@ class Artifact():
 
     def save(self, data: bytes) -> None:
         """
-        Saves the artifact instance in a pickle file
+        Saves new data to the asset path
 
         parameters:
         data: bytes
@@ -91,8 +91,9 @@ class Artifact():
         if not isinstance(data, bytes):
             raise TypeError("data has to be in bytes")
         self._data = data
-        with open(self.asset_path, 'wb') as f:
-            f.write(data)
+        new_data = data.decode()
+        with open(self.asset_path, 'w') as f:
+            f.write(new_data)
 
     def read(self) -> bytes:
         """
