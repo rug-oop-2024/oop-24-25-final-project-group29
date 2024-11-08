@@ -16,7 +16,8 @@ METRICS = [
 def get_metric(
         name: str,
         ground_truth: np.ndarray,
-        prediction: np.ndarray) -> float:
+        prediction: np.ndarray
+        ) -> float:
     """
     Factory function to get a metric by name.
 

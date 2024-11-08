@@ -1,18 +1,18 @@
 from abc import ABC, abstractmethod
 import os
-from typing import List, Union
+from typing import List
 from glob import glob
 
 
 class NotFoundError(Exception):
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         super().__init__(f"Path not found: {path}")
 
 
 class Storage(ABC):
 
     @abstractmethod
-    def save(self, data: bytes, path: str):
+    def save(self, data: bytes, path: str) -> None:
         """
         Save data to a given path
         Args:
@@ -33,7 +33,7 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    def delete(self, path: str):
+    def delete(self, path: str) -> None:
         """
         Delete data at a given path
         Args:
@@ -55,12 +55,12 @@ class Storage(ABC):
 
 class LocalStorage(Storage):
 
-    def __init__(self, base_path: str = "./assets"):
+    def __init__(self, base_path: str = "./assets") -> None:
         self._base_path = base_path
         if not os.path.exists(self._base_path):
             os.makedirs(self._base_path)
 
-    def save(self, data: bytes, key: str):
+    def save(self, data: bytes, key: str) -> None:
         path = self._join_path(key)
         if not os.path.exists(path):
             os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -73,7 +73,7 @@ class LocalStorage(Storage):
         with open(path, 'rb') as f:
             return f.read()
 
-    def delete(self, key: str = "/"):
+    def delete(self, key: str = "/") -> None:
         self._assert_path_exists(self._join_path(key))
         path = self._join_path(key)
         os.remove(path)
@@ -84,7 +84,7 @@ class LocalStorage(Storage):
         keys = glob(path + "/**/*", recursive=True)
         return list(filter(os.path.isfile, keys))
 
-    def _assert_path_exists(self, path: str):
+    def _assert_path_exists(self, path: str) -> None:
         if not os.path.exists(path):
             raise NotFoundError(path)
 

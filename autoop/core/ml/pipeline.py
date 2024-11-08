@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 import pickle
 
 from autoop.core.ml.artifact import Artifact
@@ -17,8 +17,8 @@ class Pipeline():
                  model: Model,
                  input_features: List[Feature],
                  target_feature: Feature,
-                 split=0.8,
-                 ):
+                 split: float = 0.8,
+                 ) -> None:
         self._dataset = dataset
         self._model = model
         self._input_features = input_features
@@ -37,7 +37,7 @@ class Pipeline():
                     "Model type must be regression for continuous feature"
                     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"""
 Pipeline(
     model={self._model.type},
@@ -49,7 +49,7 @@ Pipeline(
 """
 
     @property
-    def model(self):
+    def model(self) -> Model:
         return self._model
 
     @property
@@ -82,10 +82,10 @@ Pipeline(
             )
         return artifacts
 
-    def _register_artifact(self, name: str, artifact):
+    def _register_artifact(self, name: str, artifact: Artifact) -> None:
         self._artifacts[name] = artifact
 
-    def _preprocess_features(self):
+    def _preprocess_features(self) -> None:
         (
             target_feature_name, target_data, artifact
             ) = preprocess_features([self._target_feature], self._dataset)[0]
@@ -102,7 +102,7 @@ Pipeline(
             data for (feature_name, data, artifact) in input_results
             ]
 
-    def _split_data(self):
+    def _split_data(self) -> None:
         # Split the data into training and testing sets
         split = self._split
         self._train_X = [
@@ -121,12 +121,12 @@ Pipeline(
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
         return np.concatenate(vectors, axis=1)
 
-    def _train(self):
+    def _train(self) -> None:
         X = self._compact_vectors(self._train_X)
         Y = self._train_y
         self._model.fit(X, Y)
 
-    def _evaluate(self):
+    def _evaluate(self) -> None:
         X = self._compact_vectors(self._test_X)
         Y = self._test_y
         self._metrics_results = []
@@ -136,7 +136,7 @@ Pipeline(
             self._metrics_results.append((metric, result))
         self._predictions = predictions
 
-    def execute(self):
+    def execute(self) -> Dict:
         """
         Executes a full pipeline. By preprocessing features, splitting the data,
         training the model and evaluating it on both train and test sets.

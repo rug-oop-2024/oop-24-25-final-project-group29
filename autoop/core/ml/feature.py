@@ -19,6 +19,7 @@ class Feature(BaseModel):
     type: Literal["numerical", "categorical"] = Field(
         ..., description="Feature Type"
         )
+    # Maybe use type() instead??
 
     @classmethod
     def from_dataframe(
@@ -37,12 +38,12 @@ class Feature(BaseModel):
         Feature
             The feature instance from that certain column
         """
-        dataframe = dataset.read()
-        if column not in dataframe.columns:
+        df = dataset.read()
+        if column not in df.columns:
             raise ValueError(f"Column {column} not found in the dataset")
 
         column_type = "numerical" if np.issubdtype(
-            dataframe[column].dtype, np.number
+            df[column].dtype, np.number
         ) else "categorical"
         return cls(name=column, type=column_type)
 
