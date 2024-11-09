@@ -110,22 +110,21 @@ if dataset_name:
                     ]
             )
             metric_names = st.multiselect(
-                "Select a classification s to evaluate the model",
+                "Select a classification to evaluate the model",
                 options=[
                     "Accuracy Metric",
-                    "AUC ROC Metric",
+                    "Macro Recall Metric",
                     "Precision Metric"
                 ]
             )
 
         split = st.slider(
-            "Select the percent of data for training.",
+            "Select the percent of data used for training.",
             min_value=60,
             max_value=90
         )
 
         if st.button("Start Pipeline"):
-            st.write(task_type)
             pipeline = Pipeline(
                 metrics=_get_metrics_list(metric_names),
                 dataset=chosen_dataset,
@@ -134,5 +133,16 @@ if dataset_name:
                 target_feature=target_feature,
                 split=split/100
             )
+
+            st.markdown(f"""
+            # ✨ Pipeline Summary ✨
+
+            📊 **Metrics**: {metric_names} \n
+            🗂️ **Dataset**: {chosen_dataset.name} \n
+            🤖 **Model**: {task_type} \n
+            🔍 **Input Features**: {input_features_names} \n
+            🎯 **Target Feature**: {target_feature_name} \n
+            ✂️ **Train/Test Split**: {split}%/{100-split}%
+            """, unsafe_allow_html=True)
 
             st.write(pipeline.execute())
