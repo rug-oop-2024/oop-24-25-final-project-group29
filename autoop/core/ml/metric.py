@@ -3,12 +3,12 @@ import numpy as np
 
 
 METRICS = [
-    "mean_squared_error",
-    "accuracy",
-    "mean_absolute_error",
-    "r_squared",
-    "auc_roc",
-    "precision"
+    "Mean Squared Error Metric",
+    "Accuracy Metric",
+    "Mean Absolute Error Metric",
+    "R Squared Metric",
+    "AUC ROC Metric",
+    "Precision Metric"
 ]
 
 
@@ -25,17 +25,17 @@ def get_metric(
     Metric: metric instance
         instance of its given string name
     """
-    if name == "mean_squared_error":
+    if name == "Mean Squared Error Metric":
         return MeanSquaredError()
-    elif name == "accuracy":
+    elif name == "Accuracy":
         return Accuracy()
-    elif name == "mean_absolute_error":
+    elif name == "Mean Absolute Error Metric":
         return MeanAbsoluteError()
-    elif name == "auc_roc":
+    elif name == "AUC ROC Metric":
         return AucRoc()
-    elif name == "r_squared":
+    elif name == "R Squared Metric":
         return Rsquared()
-    elif name == "precision":
+    elif name == "Precision Metric":
         return Precision()
     else:
         raise ValueError(
@@ -103,7 +103,7 @@ class MeanSquaredError(Metric):
         return np.mean((ground_truth - prediction) ** 2)
 
     def name(self) -> str:
-        return "mean_squared_error"
+        return "Mean Squared Error Metric"
 
 
 class Accuracy(Metric):
@@ -120,7 +120,7 @@ class Accuracy(Metric):
         return np.mean(ground_truth == prediction)
 
     def name(self) -> str:
-        return "accuracy"
+        return "Accuracy Metric"
 
 
 class MeanAbsoluteError(Metric):
@@ -138,7 +138,7 @@ class MeanAbsoluteError(Metric):
         return np.mean(np.abs(ground_truth - prediction))
 
     def name(self) -> str:
-        return "mean_absolute_error"
+        return "Mean Absolute Error Metric"
 
 
 class AucRoc(Metric):
@@ -177,19 +177,19 @@ class AucRoc(Metric):
         return auc
 
     def name(self) -> str:
-        return "auc_roc"
+        return "AUC ROC Metric"
 
 
 class Rsquared(Metric):
     """
     Metric 3 for regression.
-    Class to calculate the r_squared.
+    Class to calculate the R Squared Metric.
     """
     def __call__(
             self, ground_truth: np.ndarray, prediction: np.ndarray
             ) -> float:
         """
-        Finds the r_squared value by using the formula
+        Finds the R Squared Metric value by using the formula
         1 - residual_sum_of_squared / total_sum_of_squared
         """
         total_sum_of_squared = np.sum(
@@ -199,7 +199,7 @@ class Rsquared(Metric):
         return 1 - residual_sum_of_squared / total_sum_of_squared
 
     def name(self) -> str:
-        return "r_squared"
+        return "R Squared Metric"
 
 
 class Precision(Metric):
@@ -231,4 +231,4 @@ class Precision(Metric):
         return np.mean(precision)
 
     def name(self) -> str:
-        return "precision"
+        return "Precision Metric"

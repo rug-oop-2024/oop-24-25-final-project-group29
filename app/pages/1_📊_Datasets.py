@@ -28,7 +28,7 @@ if uploaded_file:
     dataset = Dataset.from_dataframe(
         name=uploaded_file.name,
         data=df,
-        asset_path=asset_path,
+        asset_path=asset_path
     )
     if st.button("Add dataset"):
         automl.registry.register(dataset)

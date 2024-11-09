@@ -1,4 +1,6 @@
 from typing import List
+import pandas as pd
+import numpy as np
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.feature import Feature
 
@@ -22,14 +24,14 @@ def detect_feature_types(dataset: Dataset) -> List[Feature]:
     return features
 
 
-def _detect_feature_type(column: str) -> str:
+def _detect_feature_type(column: pd.Series) -> str:
     """
     This helper method is used to determine the feature type of one column
     at a time.
     """
-    if column.isdigit():
+    if pd.api.types.is_numeric_dtype(column):
         return "numerical"
-    elif column.isalpha():
+    elif pd.api.types.is_object_dtype(column):
         return "categorical"
     else:
         raise TypeError(f"Unsupported feature type: {type(column)}")
