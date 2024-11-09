@@ -1,37 +1,20 @@
 import numpy as np
 from autoop.core.ml.model.model import Model
+from sklearn.linear_model import LinearRegression
 
 
 class MultipleLinearRegression(Model):
     """
     A model that performs multiple linear regression.
     """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__(type="regression")
-        self._coef = None
-        self._intercept = None
-
-    @property
-    def coef(self) -> np.ndarray:
-        """
-        The model coefficients property decorator.
-
-        Returns:
-        np.ndarray
-            The coefficients of the multiple linear regression model.
-        """
-        return self._coef
-
-    @property
-    def intercept(self) -> float:
-        """
-        The model intercept.
-
-        Returns:
-        float
-            The intercept of the multiple linear regression model.
-        """
-        return self._intercept
+        self._model = LinearRegression(*args, **kwargs)
+        self._hyperparameters = {
+            param: value
+            for param, value in self._model.get_params().items()
+            if param not in ("coef_", "intercept_")
+        }
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """
@@ -43,13 +26,12 @@ class MultipleLinearRegression(Model):
         y: np.ndarray
             The target values of shape (n_samples,).
         """
-        x_with_ones = np.c_[np.ones((x.shape[0], 1)), x]
-        self._coef = np.linalg.pinv(
-            x_with_ones.T @ x_with_ones
-            ) @ x_with_ones.T @ y
-
-        self._intercept = self._coef[0]
-        self._coef = self._coef[1:]
+        self._model.fit(x, y)
+        self._parameters = {
+            param: value
+            for param, value in self._model.get_params().items()
+            if param in ("coef_", "intercept_")
+        }
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         """
@@ -63,13 +45,7 @@ class MultipleLinearRegression(Model):
         np.ndarray
             The predicted target values of shape (n_samples,).
         """
-        if self._coef is None:
-            raise RuntimeError("Model has not been fit")
-
-        # Add a column of ones to X for the intercept term
-        x_with_ones = np.c_[np.ones((x.shape[0], 1)), x]
-        # Return predictions by applying the model coefficients
-        return x_with_ones @ np.r_[self._intercept, self._coef]
+        return self._model.predict(x)
 
     # def _save_model(self) -> bytes:
     #     """

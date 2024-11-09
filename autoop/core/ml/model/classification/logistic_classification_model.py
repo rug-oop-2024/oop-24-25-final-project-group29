@@ -1,9 +1,10 @@
 import numpy as np
 from autoop.core.ml.model.model import Model
+from sklearn.linear_model import LogisticRegression
 
 
 class LogisticClassificationModel(Model):
-    def __init__(self, learning_rate=0.01, max_iter=1000):
+    def __init__(self, *args, **kwargs):
         """
         initialte the logistic regression model.
         Indludes the learning rate and the maximum iterations values.
@@ -15,40 +16,12 @@ class LogisticClassificationModel(Model):
             The maximum iterations
         """
         super().__init__(type="classification")
-        self.learning_rate = learning_rate
-        self.max_iter = max_iter
-        self._coef = None
-        self._intercept = None
-
-    @property
-    def coef(self) -> np.ndarray:
-        """
-        The model coefficients property decorator.
-
-        returns:
-        np.ndarray
-            The coefficients of the logistic regression model.
-        """
-        return self._coef
-
-    @coef.setter
-    def coef(self, value: np.ndarray) -> None:
-        self._coef = value
-
-    @property
-    def intercept(self) -> float:
-        """
-        The model intercept.
-
-        returns:
-        float
-            The intercept of the logistic regression model.
-        """
-        return self._intercept
-
-    @intercept.setter
-    def intercept(self, value: float) -> None:
-        self._intercept = value
+        self._model = LogisticRegression(*args, **kwargs)
+        self._hyperparameters = {
+            param: value
+            for param, value in self._model.get_params().items()
+            if param not in ("coef_", "intercept_")
+        }
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """
@@ -61,19 +34,12 @@ class LogisticClassificationModel(Model):
         y: np.ndarray
             The predictions
         """
-        n_samples, n_features = x.shape
-        self._coef = np.zeros(n_features)
-        self._intercept = 0
-
-        for _ in range(self.max_iter):
-            linear = np.dot(x, self.coef) + self._intercept
-            predictions = self._sigmoid(linear)
-
-            gradient_coef = (1 / n_samples) * np.dot(x.T, (predictions - y))
-            gradient_intercept = (1 / n_samples) * np.sum(predictions - y)
-
-            self._coef -= self.learning_rate * gradient_coef
-            self._intercept -= self.learning_rate * gradient_intercept
+        self._model.fit(x, y)
+        self._parameters = {
+            param: value
+            for param, value in self._model.get_params().items()
+            if param in ("coef_", "intercept_")
+        }
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         """
@@ -90,22 +56,7 @@ class LogisticClassificationModel(Model):
         np.ndarray
             The predictions
         """
-        linear = np.dot(x, self._coef) + self._intercept
-        return self._sigmoid(linear)
-
-    def _sigmoid(self, x: np.ndarray) -> np.ndarray:
-        """
-        Function to execute the sigmoid function.
-
-        parameters:
-        x: np.ndarray
-            The input
-
-        returns:
-        np.ndarray
-            The sigmoid output
-        """
-        return 1 / (1 + np.exp(-x))
+        return self._model.predict(x)
 
     # def _save_model(self) -> bytes:
     #     """

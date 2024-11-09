@@ -1,7 +1,6 @@
 import numpy as np
 from autoop.core.ml.model.model import Model
-from typing import Dict
-from collections import Counter
+from sklearn.neighbors import KNeighborsClassifier
 
 
 class KNNClassificationModel(Model):
@@ -9,40 +8,14 @@ class KNNClassificationModel(Model):
     Class for detecting the k-nearest neighbors from a specific point
     and predicting the label of that point based on nearest neighboors.
     """
-    def __init__(self, k=3):
+    def __init__(self, *args, **kwargs):
         super().__init__(type="classification")
-        self._k = k
-        self._parameters = {}
-
-    @property
-    def k(self) -> int:
-        """
-        Returns the k value
-        """
-        return self._k
-
-    @k.setter
-    def k(self, value: int) -> None:
-        """
-        Sets the k value
-        """
-        if value < 1:
-            raise ValueError("k must be greater than 0")
-        self._k = value
-
-    @property
-    def parameters(self) -> Dict[str, np.ndarray]:
-        """
-        Returns the parameters of the model
-        """
-        return self._parameters
-
-    @parameters.setter
-    def parameters(self, value: Dict[str, np.ndarray]) -> None:
-        """
-        Sets the parameters of the model
-        """
-        self._parameters = value
+        self._model = KNeighborsClassifier(*args, **kwargs)
+        self._hyperparameters = {
+            param: value
+            for param, value in self._model.get_params().items()
+            if param not in ("coef_", "intercept_")
+        }
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """
@@ -54,10 +27,12 @@ class KNNClassificationModel(Model):
         y: np.ndarray
             The predictions
         """
-        self._parameters['observations'] = x
-        self._parameters['ground truth'] = y
-        self.amount_observations = x.shape[0]
-        self.amount_features = x.shape[1]
+        self._model.fit(x, y)
+        self._parameters = {
+            param: value
+            for param, value in self._model.get_params().items()
+            if param in ("coef_", "intercept_")
+        }
 
     def predict(self, observation: np.ndarray) -> np.ndarray:
         """
@@ -71,31 +46,7 @@ class KNNClassificationModel(Model):
         np.ndarray
             The predicted label for the input obserbations
         """
-        predictions = np.array([self._predict_single(x) for x in observation])
-        return predictions
-
-    def _predict_single(self, observation: np.ndarray) -> int:
-        """
-        Predict the label of a single observation.
-
-        parameters:
-        observation: np.ndarray
-            The input features
-
-        returns:
-        most_common: int
-            The most common label from the neighboors for the input obserbation
-        """
-        # I GOT FROM ASSIGNMENT 1
-        distances = np.linalg.norm(
-            self._parameters["observations"] - observation, axis=1
-            )
-        k_indices = np.argsort(distances)[:self.k]
-        k_nearest_labels = [
-            self._parameters["ground truth"][i] for i in k_indices
-            ]
-        most_common = Counter(k_nearest_labels).most_common()
-        return most_common[0][0]
+        return self._model.predict(observation)
 
     # def _save_model(self) -> bytes:
     #     """
