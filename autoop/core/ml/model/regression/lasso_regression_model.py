@@ -101,19 +101,19 @@ class LassoRegressionModel(Model):
 
         return x @ self._coef + self._intercept
 
-    def _save_model(self) -> bytes:
-        """
-        Saves the model parameters to a binary type
-        """
-        parameters = np.array(
-            [self._intercept] + list(self._coef)
-            ).astype(np.float32)
-        return parameters.tobytes()
+    # def _save_model(self) -> bytes:
+    #     """
+    #     Saves the model parameters to a binary type
+    #     """
+    #     parameters = np.array(
+    #         [self._intercept] + list(self._coef)
+    #         ).astype(np.float32)
+    #     return parameters.tobytes()
 
-    def _load_model(self, parameters: bytes) -> None:
-        """
-        Load the model parameters from a binary type
-        """
-        parameters = np.frombuffer(parameters, dtype=np.float32)
-        self._intercept = parameters[0]
-        self._coef = parameters[1:]
+    # def _load_model(self, parameters: bytes) -> None:
+    #     """
+    #     Load the model parameters from a binary type
+    #     """
+    #     parameters = np.frombuffer(parameters, dtype=np.float32)
+    #     self._intercept = parameters[0]
+    #     self._coef = parameters[1:]

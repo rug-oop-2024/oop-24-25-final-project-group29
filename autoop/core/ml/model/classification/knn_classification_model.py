@@ -55,7 +55,7 @@ class KNNClassificationModel(Model):
             The predictions
         """
         self._parameters['observations'] = x
-        self._parameters['ground truths'] = y
+        self._parameters['ground truth'] = y
         self.amount_observations = x.shape[0]
         self.amount_features = x.shape[1]
 

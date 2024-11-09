@@ -12,12 +12,12 @@ class ClassificationFacade(Model):
     """
     def __init__(self, model_name: str, **kwargs):
         """
-        Initializes the classification facade with a specific model type
+        Initializes the classification facade with a specific model name
         (SVM, logistic, KNN).
 
         Parameters:
         model_name: str
-            The type of the classification model
+            The name of the classification model
         kwargs: additional parameters specific to the model.
         """
         self._model_name = model_name.lower()
@@ -41,7 +41,7 @@ class ClassificationFacade(Model):
                              classification.""")
         self._model_name = value
 
-    def _create_model(self, kwargs):
+    def _create_model(self, **kwargs):
         """
         Creates the appropriate model based on the model type.
         """

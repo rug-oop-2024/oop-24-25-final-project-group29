@@ -90,16 +90,16 @@ class Model(ABC):
         artifact = Artifact.read(path)
         self._load_model(artifact.data)
 
-    @abstractmethod
-    def _save_model(self) -> bytes:
-        """
-        Saves the model's parameters to a binary type
-        """
-        pass
+    # @abstractmethod
+    # def _save_model(self) -> bytes:
+    #     """
+    #     Saves the model's parameters to a binary type
+    #     """
+    #     pass
 
-    @abstractmethod
-    def _load_model(self, data: bytes) -> None:
-        """
-        Loads the model's parameters from a binary type data
-        """
-        pass
+    # @abstractmethod
+    # def _load_model(self, data: bytes) -> None:
+    #     """
+    #     Loads the model's parameters from a binary type data
+    #     """
+    #     pass

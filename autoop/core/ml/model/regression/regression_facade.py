@@ -60,7 +60,7 @@ class RegressionFacade(Model):
         """
         if self.type == "regression":
             if self.model_name == "linear":
-                return LinearRegressionModel()
+                return MultipleLinearRegression()
             elif self.model_name == "lasso":
                 return LassoRegressionModel(alpha=self.alpha)
             elif self.model_name == "ridge":

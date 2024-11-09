@@ -14,7 +14,7 @@ class RidgeRegressionModel(Model):
         alpha: float
             The regularization strenght
         """
-        super().__init__(model_type="regression")
+        super().__init__(type="regression")
         self._alpha = alpha
         self._coef = None
         self._intercept = None
@@ -59,7 +59,7 @@ class RidgeRegressionModel(Model):
         y: np.ndarray
             The predictions
         """
-        x_with_ones = np.c_[np.ones(x.shape[0], 1), x]
+        x_with_ones = np.c_[np.ones((x.shape[0], 1)), x]
         amount_of_features = x_with_ones.shape[1]
         identity_matrix = np.identity(amount_of_features)
         identity_matrix[0, 0] = 0
@@ -74,18 +74,18 @@ class RidgeRegressionModel(Model):
         """
         Predict the output using the model.
 
-        parameters:
+        Parameters:
         x: np.ndarray
-            The ground truths
-        returns:
+            The input features
+
+        Returns:
         np.ndarray
             The predictions
         """
         if self._coef is None:
             raise RuntimeError("Model has not been fit")
 
-        x_with_ones = np.c_[np.ones(x.shape[0], 1), x]
-        return x_with_ones @ self._coef
+        return self._intercept + x @ self._coef
 
     def _save_model(self) -> bytes:
         """

@@ -7,7 +7,7 @@ class MultipleLinearRegression(Model):
     A model that performs multiple linear regression.
     """
     def __init__(self):
-        super().__init__(model_type="regression")
+        super().__init__(type="regression")
         self._coef = None
         self._intercept = None
 
@@ -44,9 +44,10 @@ class MultipleLinearRegression(Model):
             The target values of shape (n_samples,).
         """
         x_with_ones = np.c_[np.ones((x.shape[0], 1)), x]
-        self._coef = np.linalg.inv(
+        self._coef = np.linalg.pinv(
             x_with_ones.T @ x_with_ones
             ) @ x_with_ones.T @ y
+
         self._intercept = self._coef[0]
         self._coef = self._coef[1:]
 

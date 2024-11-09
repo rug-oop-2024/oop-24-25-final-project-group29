@@ -1,15 +1,11 @@
-from typing import Optional
+from typing import Optional, List
 import os
-import pickle
 import base64
-
-from autoop.core.storage import Storage
-from autoop.core.database import Database
 
 
 class NotFoundError(Exception):
-    def __init__(self, path: str) -> None:
-        super().__init__(f"Path not found: {path}")
+    def _init_(self, path: str) -> None:
+        super()._init_(f"Path not found: {path}")
 
 
 class Artifact():
@@ -28,9 +24,6 @@ class Artifact():
     version: str
         The version of the artifact
     """
-    # storage = Storage()
-    # db = Database(storage)
-
     def __init__(
             self,
             name: str,
@@ -38,7 +31,8 @@ class Artifact():
             type: Optional[str] = "unknown",
             asset_path: Optional[str] = None,
             metadata: Optional[set[str]] = None,
-            version: Optional[str] = "v_1"
+            version: Optional[str] = "v_1",
+            tags: Optional[List[str]] = None
             ) -> None:
         self._name = name
         self._data = data
@@ -46,83 +40,60 @@ class Artifact():
         self._asset_path = asset_path
         self._metadata = metadata
         self._version = version
-        self._id = base64.b64encode(version).decode()
+        self._tags = tags
+        encoded_path = base64.b64encode(asset_path.encode()).decode()
+        self._id = f"{encoded_path.replace("=", "_")}_{version}"
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     @property
     def data(self) -> bytes:
         return self._data
 
-    def _to_dict(self) -> dict:
-        """Convert the Artifact instance to a dictionary."""
-        return {
-            "name": self._name,
-            "data": base64.b64encode(self._data).decode(),
-            "type": self._type,
-            "metadata": list(self._metadata),
-            "asset_path": self._asset_path,
-            "version": self._version
-        }
+    @property
+    def type(self) -> str:
+        return self._type
 
-    @staticmethod
-    def _from_dict(dict: dict) -> "Artifact":
-        """Create an Artifact instance from a dictionary."""
-        data = dict.get("data", "").encode("utf-8")
-        return Artifact(
-            name=dict.get("name"),
-            data=data,
-            asset_path=dict.get("asset_path"),
-            type=dict.get("type"),
-            metadata=set(dict.get("metadata", [])),
-            version=dict.get("version")
-        )
+    @property
+    def asset_path(self) -> str:
+        return self._asset_path
 
-    def save(
-            self,
-            data: Optional[bytes] = None
-            ) -> None:
+    @property
+    def metadata(self) -> set[str]:
+        return self._metadata
+
+    @property
+    def version(self) -> str:
+        return self._version
+
+    @property
+    def tags(self) -> List[str]:
+        return self._tags
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+    def save(self, data: bytes) -> None:
         """
-        Saves the artifact instance in a pickle file
+        Saves new data to the asset path
 
         parameters:
-        data: Optional[bytes]
-            Optional, if the user wants to change the data in the
-            artifact
+        data: bytes
+            The new data to be saved at the asset path
 
         returns:
             None
         """
-        if not os.path.exists(self._asset_path):
-            raise NotFoundError(self._asset_path)
-        # NOT GOING TO WORK, RELATIVE PATH INSTEAD
-        self._asset_path += (
-            f"\\{self._name.replace(" ", "_")}_"
-            f"{self._version.replace(".", "_")}.pkl"
-            )
-        if data is not None:
-            if not isinstance(data, bytes):
-                raise TypeError("data has to be in bytes")
-            self._data = data
-        with open(self._asset_path, 'wb') as f:
-            pickle.dump(self, f)
-
-    # @staticmethod
-    # def load(path: str) -> "Artifact":
-    #     """
-    #     Load an artifact from a pickle file
-
-    #     parameters:
-    #     path: str
-    #         the path to the location of the pickle file
-
-    #     returns:
-    #     Artifact
-    #         An Artifact instance of the loaded data
-    #     """
-    #     if not os.path.exists(path):
-    #         raise NotFoundError(path)
-    #     with open(path, "rb") as f:
-    #         artifact = pickle.load(f)
-    #     return artifact
+        if not os.path.exists(self.asset_path):
+            raise NotFoundError(self.asset_path)
+        if not isinstance(data, bytes):
+            raise TypeError("data has to be in bytes")
+        self._data = data
+        with open(self.asset_path, 'wb') as f:
+            f.write(data)
 
     def read(self) -> bytes:
         """
