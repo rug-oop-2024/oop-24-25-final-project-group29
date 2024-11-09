@@ -9,15 +9,15 @@ from autoop.core.ml.model.regression.ridge_regression_model import RidgeRegressi
 
 
 REGRESSION_MODELS = [
-    "ridge",
-    "lasso",
-    "mlr"
+    "Ridge Regression Model",
+    "Lasso Regression Model",
+    "Multiple Linear Regression Model"
 ]
 
 CLASSIFICATION_MODELS = [
-    "logistic",
-    "knn",
-    "svm"
+    "Logistic Regression Model",
+    "K-Nearest Neighbors Model",
+    "Support Vector Machine Model"
 ]
 
 
@@ -35,19 +35,19 @@ def get_model(model_name: str) -> Model:
     """
     model_name = model_name.lower()
     if model_name in REGRESSION_MODELS:
-        if model_name == "mlr":
+        if model_name == "Multiple Linear Regression Model":
             return MultipleLinearRegression()
-        elif model_name == "ridge":
+        elif model_name == "Ridge Regression Model":
             return RidgeRegressionModel()
-        elif model_name == "lasso":
+        elif model_name == "Lasso Regression Model":
             return LassoRegressionModel()
 
     elif model_name in CLASSIFICATION_MODELS:
-        if model_name == "logistic":
+        if model_name == "Logistic Regression Model":
             return LogisticClassificationModel()
-        elif model_name == "knn":
+        elif model_name == "K-Nearest Neighbors Model":
             return KNNClassificationModel()
-        elif model_name == "svm":
+        elif model_name == "Support Vector Machine Model":
             return SVMClassificationModel()
     else:
         raise ValueError(
