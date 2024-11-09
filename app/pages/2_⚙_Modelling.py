@@ -10,7 +10,7 @@ from autoop.functional.feature import detect_feature_types
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.feature import Feature
 from autoop.core.ml.metric import Metric, get_metric
-from autoop.core.ml.model import Model, get_model
+from autoop.core.ml.model import get_model
 
 
 st.set_page_config(page_title="Modelling", page_icon="📈")
@@ -117,7 +117,7 @@ if dataset_name:
                     ]
             )
             metric_names = st.multiselect(
-                "Select a classification s to evaluate the model",
+                "Select a classification to evaluate the model",
                 options=[
                     "Accuracy Metric",
                     "Macro Recall Metric",
@@ -126,7 +126,7 @@ if dataset_name:
             )
 
         split = st.slider(
-            "Select the percent of data for training.",
+            "Select the percent of data used for training.",
             min_value=60,
             max_value=90
         )
@@ -141,5 +141,16 @@ if dataset_name:
                 target_feature=target_feature,
                 split=split/100
             )
+
+            st.markdown(f"""
+            # ✨ Pipeline Summary ✨
+
+            📊 **Metrics**: {metric_names} \n
+            🗂️ **Dataset**: {chosen_dataset.name} \n
+            🤖 **Model**: {task_type} \n
+            🔍 **Input Features**: {input_features_names} \n
+            🎯 **Target Feature**: {target_feature_name} \n
+            ✂️ **Train/Test Split**: {split}%/{100-split}%
+            """, unsafe_allow_html=True)
 
             st.write(pipeline.execute())

@@ -169,7 +169,7 @@ class MacroRecall(Metric):
         return np.mean(recall)
 
     def name(self) -> str:
-        return "AUC ROC Metric"
+        return "Macro Recall Metric"
 
 
 class Rsquared(Metric):

@@ -160,16 +160,18 @@ Pipeline(
         #     self._test_y = np.argmax(self._test_y, axis=1)
 
         self._train()
-
         self._evaluate()
-        testset_metrics = self._metrics_results
+
+        testset_metrics = [
+            (metric.name(), result) for metric, result in self._metrics_results
+        ]
         testset_predictions = self._predictions
 
         trainset_predictions = self._model.predict(
             self._compact_vectors(self._train_X)
         )
         trainset_metrics = [
-            (metric, metric.evaluate(
+            (metric.name(), metric.evaluate(
                 trainset_predictions, self._train_y
                 )) for metric in self._metrics
             ]
