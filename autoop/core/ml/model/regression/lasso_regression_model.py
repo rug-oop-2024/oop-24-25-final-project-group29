@@ -2,6 +2,7 @@ import numpy as np
 from autoop.core.ml.model.model import Model
 from sklearn.linear_model import Lasso
 
+
 class LassoRegressionModel(Model):
     def __init__(self, alpha=1.0):
         """
