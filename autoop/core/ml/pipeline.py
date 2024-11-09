@@ -148,6 +148,17 @@ Pipeline(
         """
         self._preprocess_features()
         self._split_data()
+
+        if self._train_y.ndim > 1 and self._train_y.shape[1] == 1:
+            self._train_y = self._train_y.ravel()
+        elif self._train_y.ndim > 1:
+            self._train_y = np.argmax(self._train_y, axis=1)
+
+        if self._test_y.ndim > 1 and self._test_y.shape[1] == 1:
+            self._test_y = self._test_y.ravel()
+        elif self._test_y.ndim > 1:
+            self._test_y = np.argmax(self._test_y, axis=1)
+
         self._train()
         self._evaluate()
 
