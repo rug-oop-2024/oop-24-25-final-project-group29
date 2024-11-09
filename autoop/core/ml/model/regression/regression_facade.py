@@ -1,16 +1,25 @@
 import numpy as np
 
-from autoop.core.ml.model.model import Model
-from autoop.core.ml.model.regression.lasso_regression_model import LassoRegressionModel
-from autoop.core.ml.model.regression.multiple_linear_regression_model import MultipleLinearRegression
-from autoop.core.ml.model.regression.ridge_regression_model import RidgeRegressionModel
+from autoop.core.ml.model.model import (
+    Model
+)
+from autoop.core.ml.model.regression.lasso_regression_model import (
+    LassoRegressionModel
+)
+from autoop.core.ml.model.regression.multiple_linear_regression_model import (
+    MultipleLinearRegression
+)
+from autoop.core.ml.model.regression.ridge_regression_model import (
+    RidgeRegressionModel
+)
 
 
 class RegressionFacade(Model):
     """
-    A facade for simplified user interface to choose regression or classification models.
+    A facade for simplified user interface to choose regression or
+    classification models.
     """
-    def __init__(self, model_name: str, alpha: float = 1.0):
+    def __init__(self, model_name: str, **kwargs) -> None:
         """
         Initializes the model facade with a specific model type and name.
 
@@ -19,30 +28,29 @@ class RegressionFacade(Model):
             The type of the model ('regression' or 'classification')
         model_name: str
             The name of the model (e.g., 'linear', 'lasso', 'ridge')
-        alpha: float
-            The regularization strength if applicable
+        **kwargs:
+            The additional parameters specific to the model.
         """
         super().__init__(type="regression")
-        self._model_name = model_name.lower()
-        self._alpha = alpha
+        self._model_name = model_name
         self._model = self._create_model()
 
     @property
-    def model_name(self):
+    def model_name(self) -> str:
         """
         Returns the name of the specific model.
         """
         return self._model_name
 
     @property
-    def alpha(self):
+    def alpha(self) -> float:
         """
         Returns the regularization strength alpha if applicable.
         """
         return self._alpha
 
     @property
-    def model(self):
+    def model(self) -> Model:
         """
         Returns the model instance or creates it if none exists.
         """
@@ -50,7 +58,7 @@ class RegressionFacade(Model):
             self._model = self._create_model()
         return self._model
 
-    def _create_model(self):
+    def _create_model(self) -> Model:
         """
         Creates the appropriate model based on the model name and type.
 
@@ -66,7 +74,11 @@ class RegressionFacade(Model):
             elif self.model_name == "Ridge Regression Model":
                 return RidgeRegressionModel(alpha=self.alpha)
             else:
-                raise ValueError(f"Unknown model name: {self.model_name}. Available options: 'linear', 'lasso', 'ridge' for regression.")
+                raise ValueError(
+                    f"Unknown model name: {self.model_name}. "
+                    f"Available options: 'Multiple Linear Regression Model',"
+                    f" 'Lasso Regression Model', 'Ridge Regression Model'"
+                )
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """

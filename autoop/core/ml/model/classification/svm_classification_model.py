@@ -6,11 +6,13 @@ from sklearn.svm import SVC
 class SVMClassificationModel(Model):
     def __init__(self, *args, **kwargs) -> None:
         """
-        Initializes the regression model.
+        Initializes the regression model and parameters.
 
         parameters:
-        C: float
-            The regularization strength
+        *args: tuple
+            The arguments to pass to the super class
+        **kwargs: dict
+            The keyword arguments to pass to the super class
         """
         super().__init__(type="classification")
         self._model = SVC(*args, **kwargs)

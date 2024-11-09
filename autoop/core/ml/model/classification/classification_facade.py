@@ -1,16 +1,22 @@
 import numpy as np
 
 from autoop.core.ml.model.model import Model
-from autoop.core.ml.model.classification.svm_classification_model import SVMClassificationModel
-from autoop.core.ml.model.classification.logistic_classification_model import LogisticClassificationModel
-from autoop.core.ml.model.classification.knn_classification_model import KNNClassificationModel
+from autoop.core.ml.model.classification.svm_classification_model import (
+    SVMClassificationModel
+)
+from autoop.core.ml.model.classification.logistic_classification_model import (
+    LogisticClassificationModel
+)
+from autoop.core.ml.model.classification.knn_classification_model import (
+    KNNClassificationModel
+)
 
 
 class ClassificationFacade(Model):
     """
     A facade for the classification models for simplified user interface.
     """
-    def __init__(self, model_name: str, **kwargs):
+    def __init__(self, model_name: str, **kwargs) -> None:
         """
         Initializes the classification facade with a specific model name
         (SVM, logistic, KNN).
@@ -20,6 +26,7 @@ class ClassificationFacade(Model):
             The name of the classification model
         kwargs: additional parameters specific to the model.
         """
+        super().__init__(type="classification")
         self._model_name = model_name
         self.model = self._create_model(**kwargs)
 
@@ -35,15 +42,15 @@ class ClassificationFacade(Model):
         """
         Sets the model type
         """
-        if value.lower() not in ["svm", "logistic", "knn"]:
-            raise ValueError(f"""Unknown model type: {value},
-                             can only be 'svm', 'logistic', or 'knn' for
-                             classification.""")
         self._model_name = value
 
-    def _create_model(self, **kwargs):
+    def _create_model(self, **kwargs) -> Model:
         """
         Creates the appropriate model based on the model type.
+
+        Returns:
+        Model
+            The model instance
         """
         if self.model_name == "Support Vector Machine Model":
             return SVMClassificationModel(**kwargs)
@@ -53,8 +60,9 @@ class ClassificationFacade(Model):
             return KNNClassificationModel(**kwargs)
         else:
             raise ValueError(f"""Unknown model type: {self.model_name},
-                             can only be 'svm', 'logistic', or 'knn' for
-                             classification.""")
+                             can only be 'Support Vector Machine Model',
+                             'Logistic Regression Model',
+                             'K-Nearest Neighbors Model'.""")
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """

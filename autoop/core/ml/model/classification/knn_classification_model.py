@@ -8,7 +8,17 @@ class KNNClassificationModel(Model):
     Class for detecting the k-nearest neighbors from a specific point
     and predicting the label of that point based on nearest neighboors.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Initialize the KNN model from sklearn
+        KNeighborsClassifier and the parameters of the model.
+
+        Parameters:
+        args: tuple
+            The arguments to pass to the super class
+        kwargs: dict
+            The keyword arguments to pass to the super class
+        """
         super().__init__(type="classification")
         self._model = KNeighborsClassifier(*args, **kwargs)
         self._hyperparameters = {
@@ -19,7 +29,7 @@ class KNNClassificationModel(Model):
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """
-        fit the KNN model to given data
+        fit the KNN model to given data.
 
         parameters:
         x: np.ndarray

@@ -4,16 +4,15 @@ from sklearn.linear_model import LogisticRegression
 
 
 class LogisticClassificationModel(Model):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """
-        initialte the logistic regression model.
-        Indludes the learning rate and the maximum iterations values.
+        initialte the logistic regression model and the parameters.
 
         parameters:
-        learning_rate: float
-            The learning rate
-        max_iter: int
-            The maximum iterations
+        *args: tuple
+            The arguments to pass to the super class
+        **kwargs: dict
+            The keyword arguments to pass to the super class
         """
         super().__init__(type="classification")
         self._model = LogisticRegression(*args, **kwargs)
@@ -26,7 +25,6 @@ class LogisticClassificationModel(Model):
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """
         fit the logistic regression model to the given data.
-        The model is trained using sigmoid function.
 
         parameters:
         x: np.ndarray
@@ -67,7 +65,9 @@ class LogisticClassificationModel(Model):
     #         The serialized model parameters
     #     """
     #     coeficient_bytes = self._coef.tobytes()
-    #     intercept_bytes = np.array(self._intercept, dtype=np.float32).tobytes()
+    #     intercept_bytes = np.array(
+    #     self._intercept, dtype=np.float32
+    #     ).tobytes()
 
     #     metadata = np.array([self._coef.shape[0]], dtype=np.int32).tobytes()
     #     return metadata + coeficient_bytes + intercept_bytes

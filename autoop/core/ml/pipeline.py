@@ -38,6 +38,9 @@ class Pipeline():
                     )
 
     def __str__(self) -> str:
+        """
+        Method to return a string representation of the pipeline
+        """
         return f"""
 Pipeline(
     model={self._model.type},
@@ -50,13 +53,22 @@ Pipeline(
 
     @property
     def model(self) -> Model:
+        """
+        Property get method.
+
+        returns:
+            Model
+        """
         return self._model
 
     @property
     def artifacts(self) -> List[Artifact]:
         """
         Used to get the artifacts generated during the pipeline execution
-        to be saved
+        to be saved.
+
+        returns:
+            List[Artifact]
         """
         artifacts = []
         for name, artifact in self._artifacts.items():
@@ -83,9 +95,21 @@ Pipeline(
         return artifacts
 
     def _register_artifact(self, name: str, artifact: Artifact) -> None:
+        """
+        Used to register artifacts that are made during the pipeline process.
+
+        parameters:
+        name: str
+            The name of the artifact
+        artifact: Artifact
+            The artifact being registered
+        """
         self._artifacts[name] = artifact
 
     def _preprocess_features(self) -> None:
+        """
+        Preprocesses the feature data.
+        """
         (
             target_feature_name, target_data, artifact
             ) = preprocess_features([self._target_feature], self._dataset)[0]
@@ -103,6 +127,9 @@ Pipeline(
             ]
 
     def _split_data(self) -> None:
+        """
+        Used to split the data into training and testing sets
+        """
         # Split the data into training and testing sets
         split = self._split
         self._train_X = [
@@ -119,14 +146,23 @@ Pipeline(
             ]
 
     def _compact_vectors(self, vectors: List[np.array]) -> np.array:
+        """
+        Helper method to concatenate vectors into a single array
+        """
         return np.concatenate(vectors, axis=1)
 
     def _train(self) -> None:
+        """
+        Used to train the model on the training set
+        """
         X = self._compact_vectors(self._train_X)
         Y = self._train_y
         self._model.fit(X, Y)
 
     def _evaluate(self) -> None:
+        """
+        Used to evaluate the model on the test set
+        """
         X = self._compact_vectors(self._test_X)
         Y = self._test_y
         self._metrics_results = []
@@ -148,16 +184,6 @@ Pipeline(
         """
         self._preprocess_features()
         self._split_data()
-
-        # if self._train_y.ndim > 1 and self._train_y.shape[1] == 1:
-        #     self._train_y = self._train_y.ravel()
-        # elif self._train_y.ndim > 1:
-        #     self._train_y = np.argmax(self._train_y, axis=1)
-
-        # if self._test_y.ndim > 1 and self._test_y.shape[1] == 1:
-        #     self._test_y = self._test_y.ravel()
-        # elif self._test_y.ndim > 1:
-        #     self._test_y = np.argmax(self._test_y, axis=1)
 
         self._train()
         self._evaluate()

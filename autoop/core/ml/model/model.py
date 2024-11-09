@@ -12,10 +12,10 @@ class Model(ABC):
     Abstract base class for all models.
 
     Methods:
-    fit(X: np.ndarray, y: np.ndarray) -> None:
+    fit(x: np.ndarray, y: np.ndarray) -> None:
         Trains the model on given data.
 
-    predict(X: np.ndarray) -> np.ndarray:
+    predict(x: np.ndarray) -> np.ndarray:
         Makes predictions on given data.
 
     save(path: str) -> None:
@@ -60,11 +60,33 @@ class Model(ABC):
         self._parameters = parameters
 
     @abstractmethod
-    def fit(self, X: np.ndarray, y: np.ndarray) -> None:
+    def fit(self, x: np.ndarray, y: np.ndarray) -> None:
+        """
+        abstract method that all subclasses must implement.
+
+        parameters:
+        x: np.ndarray
+            The input data
+        y: np.ndarray
+            The target data
+
+        Returns: None
+        """
         pass
 
     @abstractmethod
-    def predict(self, X: np.ndarray) -> np.ndarray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
+        """
+        abstract method that all subclasses must implement.
+
+        parameters:
+        x: np.ndarray
+            The input data
+
+        returns:
+        np.ndarray
+            The predictions
+        """
         pass
 
     def to_artifact(self, name: str) -> "Artifact":

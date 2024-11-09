@@ -37,13 +37,14 @@ class Database():
             collection (str): The collection to get the data from
             id (str): The id of the data
         Returns:
-            Union[dict, None]: The data that was stored, or None if it doesn't exist
+            Union[dict, None]: The data that was stored, or None
+            if it doesn't exist
         """
         if not self._data.get(collection, None):
             return None
         return self._data[collection].get(id, None)
 
-    def delete(self, collection: str, id: str):
+    def delete(self, collection: str, id: str) -> None:
         """Delete a key from the database
         Args:
             collection (str): The collection to delete the data from
@@ -62,23 +63,26 @@ class Database():
         Args:
             collection (str): The collection to list the data from
         Returns:
-            List[Tuple[str, dict]]: A list of tuples containing the id and data for each item in the collection
+            List[Tuple[str, dict]]: A list of tuples containing the id
+            and data for each item in the collection
         """
         if not self._data.get(collection, None):
             return []
         return [(id, data) for id, data in self._data[collection].items()]
 
-    def refresh(self):
+    def refresh(self) -> None:
         """Refresh the database by loading the data from storage"""
         self._load()
 
-    def _persist(self):
+    def _persist(self) -> None:
         """Persist the data to storage"""
         for collection, data in self._data.items():
             if not data:
                 continue
             for id, item in data.items():
-                self._storage.save(json.dumps(item).encode(), f"{collection}{os.sep}{id}")
+                self._storage.save(
+                    json.dumps(item).encode(), f"{collection}{os.sep}{id}"
+                    )
 
         # for things that were deleted, we need to remove them from the storage
         keys = self._storage.list("")
@@ -87,7 +91,7 @@ class Database():
             if not self._data.get(collection, id):
                 self._storage.delete(f"{collection}{os.sep}{id}")
 
-    def _load(self):
+    def _load(self) -> None:
         """Load the data from storage"""
         self._data = {}
         for key in self._storage.list(""):

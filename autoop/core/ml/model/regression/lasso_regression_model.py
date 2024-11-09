@@ -4,13 +4,15 @@ from sklearn.linear_model import Lasso
 
 
 class LassoRegressionModel(Model):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """
-        initialize regression model.
+        initialize regression model and parameters.
 
         parameters:
-        alpha: float
-            The regularization strenght
+        *args: tuple
+            The arguments to pass to the super class
+        **kwargs: dict
+            The keyword arguments to pass to the super class
         """
         super().__init__(type="regression")
         self._model = Lasso(*args, **kwargs)
@@ -22,7 +24,7 @@ class LassoRegressionModel(Model):
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """
-        Fit the data to the model using normal equation.
+        Fit the data to the model.
 
         parameters:
         x: np.ndarray

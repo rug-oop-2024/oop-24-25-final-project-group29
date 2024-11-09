@@ -7,7 +7,17 @@ class MultipleLinearRegression(Model):
     """
     A model that performs multiple linear regression.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Initialize the multiple linear regression model from sklearn
+        LinearRegression and the parameters of the model.
+
+        Parameters:
+        args: tuple
+            The arguments to pass to the super class
+        kwargs: dict
+            The keyword arguments to pass to the super class
+        """
         super().__init__(type="regression")
         self._model = LinearRegression(*args, **kwargs)
         self._hyperparameters = {
@@ -18,7 +28,7 @@ class MultipleLinearRegression(Model):
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """
-        Fit the model to the data using the normal equation.
+        Fit the model to the data.
 
         Parameters:
         X: np.ndarray

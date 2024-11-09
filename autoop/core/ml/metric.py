@@ -46,12 +46,12 @@ def get_metric(
 class Metric(ABC):
     """
     Base class for all metrics.
-    remember: metrics take ground truth and ground_truth as input and
+    remember: metrics take observations and ground_truth as input and
     return a real number
 
-    Methods:
+    Abstract methods:
     __call__(observations: Any, ground_truth: Any) -> float:
-        Calculates the metric based on the ground truth and ground_truth.
+        Calculates the metric based on the observations and ground_truth.
 
     name() -> str:
         Returns the name of the metric.
@@ -103,6 +103,10 @@ class MeanSquaredError(Metric):
         return np.mean((observations - ground_truth) ** 2)
 
     def name(self) -> str:
+        """
+        Returns:
+            str: name of the metric
+        """
         return "Mean Squared Error Metric"
 
 
@@ -116,10 +120,23 @@ class Accuracy(Metric):
             ) -> float:
         """
         Finds the accuracy by comparing the ground truth and ground_truth.
+
+        Args:
+        observations: np.ndarray
+            The observations (x) of the model.
+        ground_truth: np.ndarray
+            The ground_truths (y) of the model.
+
+        Returns:
+            float: accuracy
         """
         return np.mean(observations == ground_truth)
 
     def name(self) -> str:
+        """
+        Returns:
+            str: name of the metric
+        """
         return "Accuracy Metric"
 
 
@@ -134,10 +151,23 @@ class MeanAbsoluteError(Metric):
         """
         Finds the mean absolute error by getting the mean of the absolute value
         of the difference between ground truth and ground_truth.
+
+        Args:
+        observations: np.ndarray
+            The observations (x) of the model.
+        ground_truth: np.ndarray
+            The ground_truths (y) of the model.
+
+        Returns:
+            float: mean absolute error
         """
         return np.mean(np.abs(observations - ground_truth))
 
     def name(self) -> str:
+        """
+        Returns:
+            str: name of the metric
+        """
         return "Mean Absolute Error Metric"
 
 
@@ -153,6 +183,15 @@ class MacroRecall(Metric):
         """
         Macro average recall in order to be used for more than 2 classes.
         This method calculates the average of each class and then averages.
+
+        Args:
+        observations: np.ndarray
+            The observations (x) of the model.
+        ground_truth: np.ndarray
+            The ground_truths (y) of the model.
+
+        Returns:
+            float: macro recall
         """
         classes = np.unique(observations)
         recall = []
@@ -169,6 +208,10 @@ class MacroRecall(Metric):
         return np.mean(recall)
 
     def name(self) -> str:
+        """
+        Returns:
+            str: name of the metric
+        """
         return "Macro Recall Metric"
 
 
@@ -183,6 +226,15 @@ class Rsquared(Metric):
         """
         Finds the R Squared Metric value by using the formula
         1 - residual_sum_of_squared / total_sum_of_squared
+
+        Args:
+        observations: np.ndarray
+            The observations (x) of the model.
+        ground_truth: np.ndarray
+            The ground_truths (y) of the model.
+
+        Returns:
+            float: R Squared
         """
         total_sum_of_squared = np.sum(
             (observations - np.mean(observations)) ** 2
@@ -191,6 +243,10 @@ class Rsquared(Metric):
         return 1 - residual_sum_of_squared / total_sum_of_squared
 
     def name(self) -> str:
+        """
+        Returns:
+            str: name of the metric
+        """
         return "R Squared Metric"
 
 
@@ -205,6 +261,15 @@ class Precision(Metric):
         """
         Macro average precision in order to be used for more than 2 classes.
         This method calculates the average of each class and then averages.
+
+        Args:
+        observations: np.ndarray
+            The observations (x) of the model.
+        ground_truth: np.ndarray
+            The ground_truths (y) of the model.
+
+        Returns:
+            float: precision
         """
         classes = np.unique(observations)
         precision = []
@@ -223,4 +288,8 @@ class Precision(Metric):
         return np.mean(precision)
 
     def name(self) -> str:
+        """
+        Returns:
+            str: name of the metric
+        """
         return "Precision Metric"

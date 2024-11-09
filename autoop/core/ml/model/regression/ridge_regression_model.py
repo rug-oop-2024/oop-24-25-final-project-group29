@@ -7,9 +7,10 @@ class RidgeRegressionModel(Model):
     """
     A model that performs ridge regression.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """
-        initialize regression model.
+        initialize regression model from sklearn Ridge and
+        the parameters of the model.
 
         parameters:
         alpha: float
@@ -23,25 +24,9 @@ class RidgeRegressionModel(Model):
             if param not in ("coef_", "intercept_")
         }
 
-    @property
-    def alpha(self) -> float:
-        """
-        Returns the regularization strength.
-        """
-        return self._alpha
-
-    @alpha.setter
-    def alpha(self, value: float):
-        """
-        Sets the regularization strength.
-        """
-        if value < 0:
-            raise ValueError("Alpha must be greater than 0")
-        self._alpha = value
-
     def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         """
-        Fit the ridge regression to the data using ridge regression formulas
+        Fit the ridge regression to the data using sklearn ridge regression
 
         parameters:
         x: np.ndarray

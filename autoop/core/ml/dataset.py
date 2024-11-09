@@ -49,7 +49,8 @@ class Dataset(Artifact):
 
     def read(self) -> pd.DataFrame:
         """
-        the method is used to read the dataset
+        This method is used to read the dataset in bytes
+        and return it as a dataframe
 
         returns:
         pd.DataFrame
