@@ -59,11 +59,11 @@ class RegressionFacade(Model):
             The model instance for the specific model type.
         """
         if self.type == "regression":
-            if self.model_name == "linear":
+            if self.model_name == "Multiple Linear Regression Model":
                 return MultipleLinearRegression()
-            elif self.model_name == "lasso":
+            elif self.model_name == "Lasso Regression Model":
                 return LassoRegressionModel(alpha=self.alpha)
-            elif self.model_name == "ridge":
+            elif self.model_name == "Ridge Regression Model":
                 return RidgeRegressionModel(alpha=self.alpha)
             else:
                 raise ValueError(f"Unknown model name: {self.model_name}. Available options: 'linear', 'lasso', 'ridge' for regression.")

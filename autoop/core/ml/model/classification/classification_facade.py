@@ -20,7 +20,7 @@ class ClassificationFacade(Model):
             The name of the classification model
         kwargs: additional parameters specific to the model.
         """
-        self._model_name = model_name.lower()
+        self._model_name = model_name
         self.model = self._create_model(**kwargs)
 
     @property
@@ -45,11 +45,11 @@ class ClassificationFacade(Model):
         """
         Creates the appropriate model based on the model type.
         """
-        if self.model_name == "svm":
+        if self.model_name == "Support Vector Machine Model":
             return SVMClassificationModel(**kwargs)
-        elif self.model_name == "logistic":
+        elif self.model_name == "Logistic Regression Model":
             return LogisticClassificationModel(**kwargs)
-        elif self.model_name == "knn":
+        elif self.model_name == "K-Nearest Neighbors Model":
             return KNNClassificationModel(**kwargs)
         else:
             raise ValueError(f"""Unknown model type: {self.model_name},
