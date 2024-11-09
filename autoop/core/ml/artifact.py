@@ -5,7 +5,7 @@ import base64
 
 class NotFoundError(Exception):
     def _init_(self, path: str) -> None:
-        super()._init_(f"Path not found: {path}")
+        super().__init__(f"Path not found: {path}")
 
 
 class Artifact():

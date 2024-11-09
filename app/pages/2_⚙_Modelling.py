@@ -8,7 +8,9 @@ from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.artifact import Artifact
 from autoop.functional.feature import detect_feature_types
 from autoop.core.ml.pipeline import Pipeline
+from autoop.core.ml.feature import Feature
 from autoop.core.ml.metric import Metric, get_metric
+from autoop.core.ml.model import Model, get_model
 
 
 st.set_page_config(page_title="Modelling", page_icon="📈")
@@ -35,6 +37,12 @@ def _get_metrics_list(metric_names: List[str]) -> List[Metric]:
         metric_list.append(get_metric(metric_name))
     return metric_list
 
+def _get_input_features(input_features_names: List[str]) -> List[Feature]:
+    input_features_list = []
+    for name in input_features_names:
+        
+        input_features_list.append(features[index])
+
 
 st.write("# ⚙ Modelling")
 write_helper_text(
@@ -52,28 +60,36 @@ dataset_name = st.selectbox(
     'Select a dataset',
     dataset_display_names
     )
+
 if dataset_name:
     chosen_dataset = datasets[dataset_display_names.index(dataset_name)]
 
     features = detect_feature_types(chosen_dataset)
     feature_names = [feature.name for feature in features]
 
-    input_features = st.multiselect(
+    input_features_names = st.multiselect(
         "Select input features",
         options=feature_names,
     )
-    target_feature = st.selectbox(
+    target_feature_name = st.selectbox(
         "Select target feature",
-        options=list(set(feature_names) - set(input_features))
+        options=list(set(feature_names) - set(input_features_names))
         )
 
-    if not input_features:
+    if not input_features_names:
         st.warning("Please select at least one input feature.")
-    if set(feature_names) == set(input_features):
+    if set(feature_names) == set(input_features_names):
         st.warning("Please leave at least one feature to serve as the target.")
 
-    if target_feature:
-        target_index = feature_names.index(target_feature)
+    if target_feature_name and input_features_names:
+        target_index = feature_names.index(target_feature_name)
+        target_feature = features[target_index]
+
+        input_features = []
+        for feature in features:
+            if feature.name in input_features_names:
+                input_features.append(feature)
+
         if features[target_index].type == "numerical":
             task_type = st.selectbox(
                 "Select regression model",
@@ -104,7 +120,7 @@ if dataset_name:
                 "Select a classification s to evaluate the model",
                 options=[
                     "Accuracy Metric",
-                    "AUC ROC Metric",
+                    "Macro Recall Metric",
                     "Precision Metric"
                 ]
             )
@@ -116,13 +132,14 @@ if dataset_name:
         )
 
         if st.button("Start Pipeline"):
+            st.write(task_type)
             pipeline = Pipeline(
                 metrics=_get_metrics_list(metric_names),
                 dataset=chosen_dataset,
-                model=task_type,
+                model=get_model(task_type),
                 input_features=input_features,
-                target_feature=features[target_index],
-                split=split
+                target_feature=target_feature,
+                split=split/100
             )
-            st.write("Pipeline started successfully:")
-            st.write(pipeline)
+
+            st.write(pipeline.execute())
