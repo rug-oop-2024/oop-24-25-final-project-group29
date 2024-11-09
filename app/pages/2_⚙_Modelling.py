@@ -6,6 +6,8 @@ from typing import List
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.artifact import Artifact
+from autoop.core.ml.pipeline import Pipeline
+from autoop.core.ml.metric import Metric, get_metric
 from autoop.functional.feature import detect_feature_types
 
 
@@ -16,7 +18,7 @@ def write_helper_text(text: str):
     st.write(f"<p style=\"color: #888;\">{text}</p>", unsafe_allow_html=True)
 
 
-def convert_artifacts_to_datasets(artifacts: List[Artifact]) -> List[Dataset]:
+def _convert_artifacts_to_datasets(artifacts: List[Artifact]) -> List[Dataset]:
     datasets = []
     for artifact in artifacts:
         datasets.append(Dataset.from_dataframe(
@@ -26,6 +28,10 @@ def convert_artifacts_to_datasets(artifacts: List[Artifact]) -> List[Dataset]:
         ))
     return datasets
 
+def _get_metrics_list(metric_names: List[str]) -> List[Metric]:
+    metrics_list = []
+    for metric in metric_names:
+        metrics_list.append(get_metric(metric))
 
 st.write("# ⚙ Modelling")
 write_helper_text(
@@ -35,16 +41,16 @@ write_helper_text(
 
 automl = AutoMLSystem.get_instance()
 
-datasets = convert_artifacts_to_datasets(automl.registry.list(type="dataset"))
+datasets = _convert_artifacts_to_datasets(automl.registry.list(type="dataset"))
 
 dataset_display_names = [artifact.name for artifact in datasets]
 
-name = st.selectbox(
+dataset_name = st.selectbox(
     'Select a dataset',
     dataset_display_names
     )
-if name:
-    chosen_dataset = datasets[dataset_display_names.index(name)]
+if dataset_name:
+    chosen_dataset = datasets[dataset_display_names.index(dataset_name)]
 
     features = detect_feature_types(chosen_dataset)
     feature_names = [feature.name for feature in features]
@@ -62,3 +68,53 @@ if name:
         st.warning("Please select at least one input feature.")
     if set(feature_names) == set(input_features):
         st.warning("Please leave at least one feature to serve as the target.")
+
+    if target_feature:
+        target_index = feature_names.index(target_feature)
+        if features[target_index].type == "numerical":
+            target_type = st.selectbox(
+                "Select regression model",
+                options=[
+                    "Ridge Regression Model",
+                    "Lasso Regression Model",
+                    "Multiple Linear Regression Model"
+                    ]
+            )
+            metric_names = st.multiselect(
+                "Select a metric to evaluate the model",
+                options=[
+                    "Mean Squared Error Metric",
+                    "Mean Absolute Error Metric",
+                    "R Squared Metric"
+                ]
+            )
+        else:
+            target_type = st.selectbox(
+                "Select classification models",
+                options=[
+                    "Support Vector Machine Model",
+                    "Logistic Regression Model",
+                    "K-Nearest Neighbors Model"
+                    ]
+            )
+            metric_names = st.multiselect(
+                "Select a metric to evaluate the model",
+                options=[
+                    "Accuracy Metric",
+                    "AUC ROC Metric",
+                    "Precision Metric"
+                ]
+            )
+
+        training_percentage = st.slider(
+            "Select the percent of data for training.",
+            min_value=60,
+            max_value=90
+        )
+
+        st.write(target_type)
+        user_pipeline = Pipeline(
+            metrics_list=_get_metrics_list(metric_names),
+            
+            target_feature=features[target_index]
+        )
