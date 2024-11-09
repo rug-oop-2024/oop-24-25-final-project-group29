@@ -6,9 +6,9 @@ from typing import List
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.artifact import Artifact
+from autoop.functional.feature import detect_feature_types
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.metric import Metric, get_metric
-from autoop.functional.feature import detect_feature_types
 
 
 st.set_page_config(page_title="Modelling", page_icon="📈")
@@ -28,10 +28,13 @@ def _convert_artifacts_to_datasets(artifacts: List[Artifact]) -> List[Dataset]:
         ))
     return datasets
 
+
 def _get_metrics_list(metric_names: List[str]) -> List[Metric]:
-    metrics_list = []
-    for metric in metric_names:
-        metrics_list.append(get_metric(metric))
+    metric_list = []
+    for metric_name in metric_names:
+        metric_list.append(get_metric(metric_name))
+    return metric_list
+
 
 st.write("# ⚙ Modelling")
 write_helper_text(
@@ -72,7 +75,7 @@ if dataset_name:
     if target_feature:
         target_index = feature_names.index(target_feature)
         if features[target_index].type == "numerical":
-            target_type = st.selectbox(
+            task_type = st.selectbox(
                 "Select regression model",
                 options=[
                     "Ridge Regression Model",
@@ -81,7 +84,7 @@ if dataset_name:
                     ]
             )
             metric_names = st.multiselect(
-                "Select a metric to evaluate the model",
+                "Select a regression metric to evaluate the model",
                 options=[
                     "Mean Squared Error Metric",
                     "Mean Absolute Error Metric",
@@ -89,7 +92,7 @@ if dataset_name:
                 ]
             )
         else:
-            target_type = st.selectbox(
+            task_type = st.selectbox(
                 "Select classification models",
                 options=[
                     "Support Vector Machine Model",
@@ -98,7 +101,7 @@ if dataset_name:
                     ]
             )
             metric_names = st.multiselect(
-                "Select a metric to evaluate the model",
+                "Select a classification s to evaluate the model",
                 options=[
                     "Accuracy Metric",
                     "AUC ROC Metric",
@@ -106,15 +109,20 @@ if dataset_name:
                 ]
             )
 
-        training_percentage = st.slider(
+        split = st.slider(
             "Select the percent of data for training.",
             min_value=60,
             max_value=90
         )
 
-        st.write(target_type)
-        user_pipeline = Pipeline(
-            metrics_list=_get_metrics_list(metric_names),
-            
-            target_feature=features[target_index]
-        )
+        if st.button("Start Pipeline"):
+            pipeline = Pipeline(
+                metrics=_get_metrics_list(metric_names),
+                dataset=chosen_dataset,
+                model=task_type,
+                input_features=input_features,
+                target_feature=features[target_index],
+                split=split
+            )
+            st.write("Pipeline started successfully:")
+            st.write(pipeline)

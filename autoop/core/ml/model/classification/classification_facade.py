@@ -10,28 +10,28 @@ class ClassificationFacade(Model):
     """
     A facade for the classification models for simplified user interface.
     """
-    def __init__(self, model_type: str, **kwargs):
+    def __init__(self, model_name: str, **kwargs):
         """
-        Initializes the classification facade with a specific model type
+        Initializes the classification facade with a specific model name
         (SVM, logistic, KNN).
 
         Parameters:
-        model_type: str
-            The type of the classification model
+        model_name: str
+            The name of the classification model
         kwargs: additional parameters specific to the model.
         """
-        self._model_type = model_type.lower()
+        self._model_name = model_name.lower()
         self.model = self._create_model(**kwargs)
 
     @property
-    def model_type(self) -> str:
+    def model_name(self) -> str:
         """
         Returns the model type
         """
-        return self._model_type
+        return self._model_name
 
-    @model_type.setter
-    def model_type(self, value: str) -> None:
+    @model_name.setter
+    def model_name(self, value: str) -> None:
         """
         Sets the model type
         """
@@ -39,20 +39,20 @@ class ClassificationFacade(Model):
             raise ValueError(f"""Unknown model type: {value},
                              can only be 'svm', 'logistic', or 'knn' for
                              classification.""")
-        self._model_type = value
+        self._model_name = value
 
-    def _create_model(self, kwargs):
+    def _create_model(self, **kwargs):
         """
         Creates the appropriate model based on the model type.
         """
-        if self.model_type == "svm":
+        if self.model_name == "svm":
             return SVMClassificationModel(**kwargs)
-        elif self.model_type == "logistic":
+        elif self.model_name == "logistic":
             return LogisticClassificationModel(**kwargs)
-        elif self.model_type == "knn":
+        elif self.model_name == "knn":
             return KNNClassificationModel(**kwargs)
         else:
-            raise ValueError(f"""Unknown model type: {self.model_type},
+            raise ValueError(f"""Unknown model type: {self.model_name},
                              can only be 'svm', 'logistic', or 'knn' for
                              classification.""")
 

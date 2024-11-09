@@ -27,7 +27,7 @@ def get_metric(
     """
     if name == "Mean Squared Error Metric":
         return MeanSquaredError()
-    elif name == "Accuracy Metric":
+    elif name == "accuracy":
         return Accuracy()
     elif name == "Mean Absolute Error Metric":
         return MeanAbsoluteError()

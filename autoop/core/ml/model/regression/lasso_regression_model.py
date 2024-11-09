@@ -1,6 +1,6 @@
 import numpy as np
 from autoop.core.ml.model.model import Model
-
+from sklearn.linear_model import Lasso
 
 class LassoRegressionModel(Model):
     def __init__(self, alpha=1.0):
@@ -11,10 +11,9 @@ class LassoRegressionModel(Model):
         alpha: float
             The regularization strenght
         """
-        super().__init__(model_type="regression")
+        super().__init__(type="regression")
         self._alpha = alpha
-        self._coef = None
-        self._intercept = None
+        self.model = Lasso(alpha=self.alpha)
 
     @property
     def alpha(self) -> float:
@@ -102,19 +101,19 @@ class LassoRegressionModel(Model):
 
         return x @ self._coef + self._intercept
 
-    def _save_model(self) -> bytes:
-        """
-        Saves the model parameters to a binary type
-        """
-        parameters = np.array(
-            [self._intercept] + list(self._coef)
-            ).astype(np.float32)
-        return parameters.tobytes()
+    # def _save_model(self) -> bytes:
+    #     """
+    #     Saves the model parameters to a binary type
+    #     """
+    #     parameters = np.array(
+    #         [self._intercept] + list(self._coef)
+    #         ).astype(np.float32)
+    #     return parameters.tobytes()
 
-    def _load_model(self, parameters: bytes) -> None:
-        """
-        Load the model parameters from a binary type
-        """
-        parameters = np.frombuffer(parameters, dtype=np.float32)
-        self._intercept = parameters[0]
-        self._coef = parameters[1:]
+    # def _load_model(self, parameters: bytes) -> None:
+    #     """
+    #     Load the model parameters from a binary type
+    #     """
+    #     parameters = np.frombuffer(parameters, dtype=np.float32)
+    #     self._intercept = parameters[0]
+    #     self._coef = parameters[1:]
