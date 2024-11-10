@@ -4,14 +4,14 @@ import pickle
 from typing import Dict
 from app.core.system import AutoMLSystem
 from autoop.core.ml.artifact import Artifact
+from autoop.core.ml.model import Model
 
 
 st.set_page_config(page_title="Deployment", page_icon='🚀')
 
-
 def _get_pipeline_config(base_artifact: Artifact) -> Dict:
-    pipeline_artifacts = pickle.loads(base_artifact.data)
-    for artifact in pipeline_artifacts:
+    pipeline_data = pickle.loads(base_artifact.data)
+    for artifact in pipeline_data:
         if artifact.name == "pipeline_config":
             config_data = pickle.loads(artifact.data)
             formatted_data = {
@@ -32,6 +32,13 @@ def _get_pipeline_config(base_artifact: Artifact) -> Dict:
                         }% Test"
             }
             return formatted_data
+
+
+def _get_pipeline_model(base_artifact: Artifact) -> Model:
+    pipeline_data = pickle.loads(base_artifact.data)
+    for artifact in pipeline_data:
+        if artifact.type == "model":
+            return pickle.loads(artifact.data)
 
 
 automl = AutoMLSystem.get_instance()
@@ -89,3 +96,11 @@ load_pipeline_name = st.selectbox(
     'Select a pipeline for performing predictions',
     pipeline_names
 )
+if load_pipeline_name:
+    load_pipeline = pipeline_artifacts[pipeline_names.index(load_pipeline_name)]
+    model = _get_pipeline_model(load_pipeline)
+
+    uploaded_file = st.file_uploader('Choose a csv file', type='csv')
+
+    if st.button("Load Pipeline"):
+        pass
