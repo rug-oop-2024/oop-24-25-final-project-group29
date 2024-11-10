@@ -86,6 +86,7 @@ if selected_pipeline_names:
                     ]}")
 
                 st.write(f"Train/Test Split: {pipeline_config['split']}")
+
     if delete_button:
         for current in selected_pipelines:
             automl.registry.delete(current.id)
