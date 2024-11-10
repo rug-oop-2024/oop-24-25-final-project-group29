@@ -17,7 +17,7 @@ def _convert_artifacts_to_pipelines(
         input_features = pipeline_data["input_features"]
         target_feature = pipeline_data["target_feature"]
         split = pipeline_data["split"]
-        model = 
+        model = get_model(artifact.metadata[0])
 
         pipeline = Pipeline(
             metrics=None,
@@ -50,4 +50,3 @@ pipeline_selected = st.selectbox(
 if pipeline_selected:
     pipeline = pipelines[pipeline_names.index(pipeline_selected)]
     st.write(pipeline)
-
