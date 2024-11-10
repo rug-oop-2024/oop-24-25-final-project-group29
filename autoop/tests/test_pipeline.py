@@ -6,7 +6,9 @@ from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.feature import Feature
 from autoop.functional.feature import detect_feature_types
-from autoop.core.ml.model.regression import MultipleLinearRegression
+from autoop.core.ml.model.regression.multiple_linear_regression_model import (
+    MultipleLinearRegression
+)
 from autoop.core.ml.metric import MeanSquaredError
 
 
@@ -34,7 +36,7 @@ class TestPipeline(unittest.TestCase):
             metrics=[MeanSquaredError()],
             split=0.8
         )
-        self.ds_size = data.data.shape[0]
+        self.ds_size = df.shape[0]
 
     def test_init(self):
         self.assertIsInstance(self.pipeline, Pipeline)

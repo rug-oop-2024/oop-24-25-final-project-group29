@@ -3,13 +3,27 @@ import numpy as np
 
 from autoop.core.ml.model import get_model
 from autoop.core.ml.model.regression.regression_facade import RegressionFacade
-from autoop.core.ml.model.regression.ridge_regression_model import RidgeRegressionModel
-from autoop.core.ml.model.regression.multiple_linear_regression_model import MultipleLinearRegression
-from autoop.core.ml.model.regression.lasso_regression_model import LassoRegressionModel
-from autoop.core.ml.model.classification.classification_facade import ClassificationFacade
-from autoop.core.ml.model.classification.svm_classification_model import SVMClassificationModel
-from autoop.core.ml.model.classification.logistic_classification_model import LogisticClassificationModel
-from autoop.core.ml.model.classification.knn_classification_model import KNNClassificationModel
+from autoop.core.ml.model.regression.ridge_regression_model import (
+    RidgeRegressionModel
+)
+from autoop.core.ml.model.regression.multiple_linear_regression_model import (
+    MultipleLinearRegression
+)
+from autoop.core.ml.model.regression.lasso_regression_model import (
+    LassoRegressionModel
+)
+from autoop.core.ml.model.classification.classification_facade import (
+    ClassificationFacade
+)
+from autoop.core.ml.model.classification.svm_classification_model import (
+    SVMClassificationModel
+)
+from autoop.core.ml.model.classification.logistic_classification_model import (
+    LogisticClassificationModel
+)
+from autoop.core.ml.model.classification.knn_classification_model import (
+    KNNClassificationModel
+)
 
 
 class TestModel(unittest.TestCase):
@@ -24,18 +38,18 @@ class TestModel(unittest.TestCase):
         """
         Test if get model function returns the correct model
         """
-        model = get_model("ridge")
+        model = get_model("Ridge Regression Model")
         self.assertIsInstance(model, RidgeRegressionModel)
 
     def test_facades(self):
         """
         Test if the facades work and access the appropriate models
         """
-        reg = RegressionFacade(model_name="ridge", alpha=0.5)
-        self.assertEqual(reg.model_name, "ridge")
+        reg = RegressionFacade(model_name="Ridge Regression Model", alpha=0.5)
+        self.assertEqual(reg.model_name, "Ridge Regression Model")
 
-        clas = ClassificationFacade(model_name="svm")
-        self.assertEqual(clas.model_name, "svm")
+        clas = ClassificationFacade(model_name="Support Vector Machine Model")
+        self.assertEqual(clas.model_name, "Support Vector Machine Model")
 
     def test_lasso(self):
         """
@@ -68,7 +82,7 @@ class TestModel(unittest.TestCase):
         """
         Test if knn works
         """
-        reg = KNNClassificationModel()
+        reg = KNNClassificationModel(n_neighbors=3)
         reg.fit(self.x_clas, self.y_clas)
         prediction = reg.predict(self.x_clas)
         self.assertEqual(prediction.shape, self.y_clas.shape)
@@ -90,7 +104,3 @@ class TestModel(unittest.TestCase):
         reg.fit(self.x_clas, self.y_clas)
         prediction = reg.predict(self.x_clas)
         self.assertEqual(prediction.shape, self.y_clas.shape)
-
-
-if __name__ == "__main__":
-    unittest.main()

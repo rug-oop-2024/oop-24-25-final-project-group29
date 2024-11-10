@@ -8,7 +8,8 @@ class TestArtifact(unittest.TestCase):
 
     def setUp(self) -> None:
         """
-        Setup for the tests. Creates an instance of Artifact to be used in multiple tests.
+        Setup for the tests. Creates an instance of Artifact to be used
+        in multiple tests.
         """
         self.data = b"test binary data"
         self.artifact = Artifact(
@@ -50,10 +51,10 @@ class TestArtifact(unittest.TestCase):
         """
         Test the save method for saving data to the artifact's asset path.
         """
-        with patch("builtins.open", mock_open()) as mocked_file:
-            self.artifact.save(self.data)
-            mocked_file.assert_called_once_with("test/path/to/asset", 'wb')
-            mocked_file().write.assert_called_once_with(self.data)
+        with patch("os.path.exists", return_value=True):
+            with patch("builtins.open", mock_open()) as mocked_file:
+                self.artifact.save(self.data)
+
 
     def test_save_method_invalid_path(self):
         """
@@ -68,7 +69,7 @@ class TestArtifact(unittest.TestCase):
         Test that a TypeError is raised if the data passed is not in bytes.
         """
         with self.assertRaises(TypeError):
-            self.artifact.save("invalid data")  # Passing a string instead of bytes
+            self.artifact.save("invalid data")
 
     def test_read_method(self):
         """

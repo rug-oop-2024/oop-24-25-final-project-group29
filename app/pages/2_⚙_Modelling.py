@@ -7,6 +7,7 @@ from typing import List
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.artifact import Artifact
+from autoop.core.ml.model import Model
 from autoop.functional.feature import detect_feature_types
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.feature import Feature
@@ -183,7 +184,7 @@ if dataset_name:
                     name=pipeline_name,
                     data=pipeline_artifact.data,
                     type="pipeline",
-                    asset_path=pipeline_asset_path
+                    asset_path=pipeline_asset_path,
                 )
                 automl.registry.register(user_pipeline_artifact)
                 st.success("Pipeline saved successfully")
