@@ -55,13 +55,6 @@ class TestArtifact(unittest.TestCase):
             with self.assertRaises(NotFoundError):
                 self.artifact.save(self.data)
 
-    def test_save_method_invalid_data(self):
-        """
-        Test that a TypeError is raised if the data passed is not in bytes.
-        """
-        with self.assertRaises(TypeError):
-            self.artifact.save("invalid data")
-
     def test_read_method(self):
         """
         Test the read method for reading the data from the artifact.

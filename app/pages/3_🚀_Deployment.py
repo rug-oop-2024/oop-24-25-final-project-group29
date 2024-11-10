@@ -69,11 +69,6 @@ with st.expander("Manage Pipelines", expanded=True):
                     ]}")
                 st.write(f"Train/Test Split: {pipeline_config['split']}")
 
-        # if delete_button:
-        #     for current in selected_pipelines:
-        #         automl.registry.delete(current.id)
-        #     st.success("Pipelines(s) deleted!")
-
 with st.expander("Load Pipeline for Predictions", expanded=True):
     load_pipeline_name = st.selectbox(
         'Select a pipeline for performing predictions', pipeline_names

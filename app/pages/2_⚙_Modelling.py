@@ -4,7 +4,6 @@ import io
 import re
 import pickle
 from typing import List
-import numpy as np
 
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
