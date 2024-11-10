@@ -9,12 +9,30 @@ from autoop.core.ml.model import Model
 
 st.set_page_config(page_title="Deployment", page_icon='🚀')
 
-
 def _get_pipeline_config(base_artifact: Artifact) -> Dict:
     pipeline_data = pickle.loads(base_artifact.data)
     for artifact in pipeline_data:
         if artifact.name == "pipeline_config":
-            return pickle.loads(artifact.data)
+            config_data = pickle.loads(artifact.data)
+            formatted_data = {
+                "input_features": [
+                    f"{feat.name} ({feat.type})" for feat in config_data.get(
+                        "input_features", []
+                        )
+                    ],
+                "target_feature": f"{
+                    config_data.get('target_feature').name
+                    } ({
+                        config_data.get('target_feature').type
+                        })" if config_data.get("target_feature") else "N/A",
+                "split": f"{
+                    int(config_data.get('split', 0) * 100)
+                    }% Train / {
+                        100 - int(config_data.get('split', 0) * 100)
+                        }% Test"
+            }
+            return formatted_data
+
 
 def _get_pipeline_model(base_artifact: Artifact) -> Model:
     pipeline_data = pickle.loads(base_artifact.data)
@@ -55,7 +73,19 @@ if selected_pipeline_names:
 
     if view_button:
         for pipeline_artifact in selected_pipelines:
-            st.write(_get_pipeline_config(pipeline_artifact))
+            pipeline_config = _get_pipeline_config(pipeline_artifact)
+            if pipeline_config:
+                st.subheader(f"Pipeline: {pipeline_artifact.name}")
+                st.write(
+                    f"Input Features: {', '.join(pipeline_config[
+                        'input_features'
+                        ])}"
+                    )
+                st.write(f"Target Feature: {pipeline_config[
+                    'target_feature'
+                    ]}")
+
+                st.write(f"Train/Test Split: {pipeline_config['split']}")
     if delete_button:
         for current in selected_pipelines:
             automl.registry.delete(current.id)
