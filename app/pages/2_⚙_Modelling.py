@@ -131,7 +131,7 @@ if dataset_name:
                 "Enter a version for this pipeline"
                 )
         if pipeline_name:
-            pipeline_asset_path = f"pipelines/{pipeline_name}"
+            pipeline_asset_path = f"pipelines/{pipeline_name}.pkl"
             st.write(pipeline_asset_path)
 
         execute_pipeline_button = False
@@ -168,6 +168,7 @@ if dataset_name:
                     "Please enter a version for the pipeline before you save"
                     )
             if pipeline_name and pipeline_version:
+                st.write(pipeline_asset_path)
                 pipeline_artifact = _get_pipeline_artifact(pipeline)
                 user_pipeline_artifact = Artifact(
                     name=pipeline_name,
@@ -176,3 +177,4 @@ if dataset_name:
                     asset_path=pipeline_asset_path
                 )
                 automl.registry.register(user_pipeline_artifact)
+                st.success("Pipeline saved successfully")
