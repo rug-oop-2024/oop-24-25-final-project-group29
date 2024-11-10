@@ -1,11 +1,10 @@
-from pydantic import BaseModel, Field
 from typing import Literal
 import numpy as np
 
 from autoop.core.ml.dataset import Dataset
 
 
-class Feature(BaseModel):
+class Feature():
     """
     Class to represent the features in the dataset.
 
@@ -15,15 +14,23 @@ class Feature(BaseModel):
         type: Literal['numerical', 'categorical']
             Type of the feature either numerical or categorical.
     """
-    name: str = Field(..., description="Feature Name")
-    type: Literal["numerical", "categorical"] = Field(
-        ..., description="Feature Type"
-        )
+    def __init__(
+            self,
+            name: str,
+            type: Literal["numerical", "categorical"]) -> None:
+        self._name = name
+        self._type = type
 
-    @classmethod
-    def from_dataframe(
-            cls, dataset: Dataset, column: str
-                ) -> "Feature":
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def type(self) -> str:
+        return self._type
+
+    @staticmethod
+    def from_dataframe(dataset: Dataset, column: str) -> "Feature":
         """
         Creates a feature from a dataset instance.
 
@@ -44,7 +51,7 @@ class Feature(BaseModel):
         column_type = "numerical" if np.issubdtype(
             df[column].dtype, np.number
         ) else "categorical"
-        return cls(name=column, type=column_type)
+        return Feature(name=column, type=column_type)
 
     def __str__(self) -> str:
         """
