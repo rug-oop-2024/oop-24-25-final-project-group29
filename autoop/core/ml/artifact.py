@@ -48,7 +48,7 @@ class Artifact():
         self._metadata = metadata
         self._version = version
         self._tags = tags
-        if self.asset_path:
+        if self._asset_path:
             encoded_path = base64.b64encode(asset_path.encode()).decode()
             self._id = f"{encoded_path.replace("=", "_")}_{version}"
 

@@ -10,6 +10,7 @@ from autoop.core.ml.artifact import Artifact
 
 st.set_page_config(page_title="Datasets", page_icon='📊')
 
+
 def _convert_artifacts_to_datasets(artifacts: List[Artifact]) -> List[Dataset]:
     datasets = []
     for artifact in artifacts:
@@ -57,16 +58,14 @@ if dataset_name:
     view_button = False
     delete_button = False
     with col1:
-        if st.button("View Datasets"):
+        if st.button("View Dataset"):
             view_button = True
     with col2:
         if st.button("Delete Selected Dataset"):
             delete_button = True
 
     if view_button:
-        for current in selected_dataset:
-            st.dataframe(current.read())
+        st.dataframe(selected_dataset.read())
     if delete_button:
-        for current in selected_dataset:
-            automl.registry.delete(current.id)
+        automl.registry.delete(selected_dataset.id)
         st.success("Dataset deleted!")
