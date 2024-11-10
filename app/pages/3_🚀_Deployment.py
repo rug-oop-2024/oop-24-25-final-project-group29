@@ -1,13 +1,19 @@
 import streamlit as st
 import pickle
+import pandas as pd
+import numpy as np
+import time
 
 from typing import Dict
 from app.core.system import AutoMLSystem
 from autoop.core.ml.artifact import Artifact
 from autoop.core.ml.model import Model
+from autoop.core.ml.dataset import Dataset
+from autoop.functional.feature import detect_feature_types
 
 
 st.set_page_config(page_title="Deployment", page_icon='🚀')
+
 
 def _get_pipeline_config(base_artifact: Artifact) -> Dict:
     pipeline_data = pickle.loads(base_artifact.data)
@@ -90,6 +96,7 @@ if selected_pipeline_names:
     if delete_button:
         for current in selected_pipelines:
             automl.registry.delete(current.id)
+        time.sleep(0.1)
         st.success("Pipelines(s) deleted!")
 
 load_pipeline_name = st.selectbox(
@@ -102,5 +109,10 @@ if load_pipeline_name:
 
     uploaded_file = st.file_uploader('Choose a csv file', type='csv')
 
-    if st.button("Load Pipeline"):
-        pass
+    if uploaded_file:
+        data = pd.read_csv(uploaded_file)
+        dataset = Dataset.from_dataframe(
+            name=uploaded_file.name,
+            data=data,
+            asset_path=f"datasets/{uploaded_file.name}"
+        )
