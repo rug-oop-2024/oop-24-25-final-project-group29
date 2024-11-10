@@ -1,53 +1,61 @@
 import streamlit as st
 import pickle
 
-from typing import List
+from typing import Dict
 from app.core.system import AutoMLSystem
 from autoop.core.ml.artifact import Artifact
-from autoop.core.ml.pipeline import Pipeline
-from autoop.core.ml.model import get_model
 
 
-def _convert_artifacts_to_pipelines(
-        artifacts: List[Artifact]
-        ) -> List[Pipeline]:
-    pipelines = []
-    for artifact in artifacts:
-        pipeline_data = pickle.loads(artifact.data)
-        input_features = pipeline_data["input_features"]
-        target_feature = pipeline_data["target_feature"]
-        split = pipeline_data["split"]
-        model = 
+st.set_page_config(page_title="Deployment", page_icon='🚀')
 
-        pipeline = Pipeline(
-            metrics=None,
-            dataset=None,
-            model=model,
-            input_features=input_features,
-            target_feature=target_feature,
-            split=split,
-        )
-        pipelines.append(pipeline)
 
-    return pipelines
+def _get_pipeline_config(base_artifact: Artifact) -> Dict:
+    pipeline_artifacts = pickle.loads(base_artifact.data)
+    for artifact in pipeline_artifacts:
+        if artifact.name == "pipeline_config":
+            return pickle.loads(artifact.data)
 
 
 automl = AutoMLSystem.get_instance()
 
-pipeline_artifacts = automl.registry.list(type="pipeline")
-pipelines = _convert_artifacts_to_pipelines(pipeline_artifacts)
-
 st.title("Deployment")
 st.write("Here the user can manage the pipelines.")
 
+pipeline_artifacts = automl.registry.list(type="pipeline")
+
 pipeline_names = [artifact.name for artifact in pipeline_artifacts]
 
-pipeline_selected = st.selectbox(
-    'Select a pipeline',
+selected_pipeline_names = st.multiselect(
+    'Select pipelines to manage',
+    pipeline_names
+    )
+if selected_pipeline_names:
+    selected_pipelines = []
+    for name in selected_pipeline_names:
+        selected_pipelines.append(
+            pipeline_artifacts[pipeline_names.index(name)]
+            )
+
+    col1, col2 = st.columns(2)
+    view_button = False
+    delete_button = False
+    with col1:
+        if st.button("View Pipelines"):
+            view_button = True
+    with col2:
+        if st.button("Delete Selected Pipelines"):
+            delete_button = True
+
+    if view_button:
+        for pipeline_artifact in selected_pipelines:
+            st.write(_get_pipeline_config(pipeline_artifact))
+    if delete_button:
+        for current in selected_pipelines:
+            automl.registry.delete(current.id)
+        st.success("Pipelines(s) deleted!")
+        st.rerun()
+
+load_pipeline_name = st.selectbox(
+    'Select a pipeline for performing predictions',
     pipeline_names
 )
-
-if pipeline_selected:
-    pipeline = pipelines[pipeline_names.index(pipeline_selected)]
-    st.write(pipeline)
-

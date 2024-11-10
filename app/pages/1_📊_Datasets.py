@@ -8,6 +8,8 @@ from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.artifact import Artifact
 
 
+st.set_page_config(page_title="Datasets", page_icon='📊')
+
 def _convert_artifacts_to_datasets(artifacts: List[Artifact]) -> List[Dataset]:
     datasets = []
     for artifact in artifacts:
