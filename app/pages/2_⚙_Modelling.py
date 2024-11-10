@@ -192,7 +192,8 @@ if dataset_name:
                     result["train predictions"], columns=["Prediction"]
                     ).to_csv(index=False),
                 file_name="train_predictions.csv",
-                mime="text/csv"
+                mime="text/csv",
+                key="train_predictions_csv"
             )
             st.download_button(
                 label="Download Test Predictions as CSV",
@@ -200,7 +201,8 @@ if dataset_name:
                     result["test predictions"], columns=["Prediction"]
                     ).to_csv(index=False),
                 file_name="test_predictions.csv",
-                mime="text/csv"
+                mime="text/csv",
+                key="test_predictions_csv"
             )
 
         if save_pipeline_button:

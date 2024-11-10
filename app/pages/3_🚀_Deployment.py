@@ -1,13 +1,16 @@
 import streamlit as st
 import pickle
+import pandas as pd
 
 from typing import Dict
 from app.core.system import AutoMLSystem
 from autoop.core.ml.artifact import Artifact
 from autoop.core.ml.model import Model
+from autoop.core.ml.dataset import Dataset
 
 
 st.set_page_config(page_title="Deployment", page_icon='🚀')
+
 
 def _get_pipeline_config(base_artifact: Artifact) -> Dict:
     pipeline_data = pickle.loads(base_artifact.data)
@@ -15,21 +18,16 @@ def _get_pipeline_config(base_artifact: Artifact) -> Dict:
         if artifact.name == "pipeline_config":
             config_data = pickle.loads(artifact.data)
             formatted_data = {
-                "input_features": [
+                "formatted_input_features": [
                     f"{feat.name} ({feat.type})" for feat in config_data.get(
                         "input_features", []
                         )
-                    ],
-                "target_feature": f"{
-                    config_data.get('target_feature').name
-                    } ({
-                        config_data.get('target_feature').type
-                        })" if config_data.get("target_feature") else "N/A",
-                "split": f"{
-                    int(config_data.get('split', 0) * 100)
-                    }% Train / {
-                        100 - int(config_data.get('split', 0) * 100)
-                        }% Test"
+                ],
+                "input_features": [feat.name for feat in config_data.get(
+                    "input_features", []
+                    )],
+                "target_feature": config_data.get("target_feature").name,
+                "split": config_data.get("split", 0)
             }
             return formatted_data
 
@@ -97,10 +95,42 @@ load_pipeline_name = st.selectbox(
     pipeline_names
 )
 if load_pipeline_name:
-    load_pipeline = pipeline_artifacts[pipeline_names.index(load_pipeline_name)]
+    load_pipeline = pipeline_artifacts[
+        pipeline_names.index(load_pipeline_name)
+        ]
     model = _get_pipeline_model(load_pipeline)
+    pipeline_config = _get_pipeline_config(load_pipeline)
 
     uploaded_file = st.file_uploader('Choose a csv file', type='csv')
 
     if st.button("Load Pipeline"):
-        pass
+        if uploaded_file:
+            df = pd.read_csv(uploaded_file)
+            asset_path = f"datasets/{uploaded_file.name}"
+            dataset = Dataset.from_dataframe(
+                name=uploaded_file.name,
+                data=df,
+                asset_path=asset_path
+            )
+
+            input_feature_names = pipeline_config["input_features"]
+            input_data = df[input_feature_names]
+            y = df[pipeline_config["target_feature"]]
+
+            # Fit the model and make predictions
+            model.fit(input_data, y)
+            predictions = model.predict(input_data)
+
+            st.write("Predictions:")
+            prediction_df = pd.DataFrame(predictions, columns=[
+                pipeline_config["target_feature"]
+                ])
+            st.table(prediction_df.head(10))
+
+            st.download_button(
+                label="Download Predictions CSV",
+                data=prediction_df.to_csv(index=False),
+                file_name="predictions.csv",
+                mime="text/csv",
+                key="download_predictions_csv"
+            )
