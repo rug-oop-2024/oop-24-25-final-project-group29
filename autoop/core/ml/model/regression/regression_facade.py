@@ -33,7 +33,7 @@ class RegressionFacade(Model):
         """
         super().__init__(type="regression")
         self._model_name = model_name
-        self._model = self._create_model()
+        self._model = self._create_model(**kwargs)
 
     @property
     def model_name(self) -> str:
@@ -41,13 +41,6 @@ class RegressionFacade(Model):
         Returns the name of the specific model.
         """
         return self._model_name
-
-    @property
-    def alpha(self) -> float:
-        """
-        Returns the regularization strength alpha if applicable.
-        """
-        return self._alpha
 
     @property
     def model(self) -> Model:
@@ -58,7 +51,7 @@ class RegressionFacade(Model):
             self._model = self._create_model()
         return self._model
 
-    def _create_model(self) -> Model:
+    def _create_model(self, **kwargs) -> Model:
         """
         Creates the appropriate model based on the model name and type.
 
@@ -70,9 +63,9 @@ class RegressionFacade(Model):
             if self.model_name == "Multiple Linear Regression Model":
                 return MultipleLinearRegression()
             elif self.model_name == "Lasso Regression Model":
-                return LassoRegressionModel(alpha=self.alpha)
+                return LassoRegressionModel(**kwargs)
             elif self.model_name == "Ridge Regression Model":
-                return RidgeRegressionModel(alpha=self.alpha)
+                return RidgeRegressionModel(**kwargs)
             else:
                 raise ValueError(
                     f"Unknown model name: {self.model_name}. "

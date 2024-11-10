@@ -3,7 +3,7 @@ import numpy as np
 from autoop.core.ml.metric import (
     get_metric,
     MeanSquaredError,
-    AucRoc,
+    MacroRecall,
     Accuracy,
     MeanAbsoluteError,
     Rsquared,
@@ -28,13 +28,13 @@ class TestMetric(unittest.TestCase):
         """
         Test if the get_metric function returns the correct metric
         """
-        metric_name = "mean_squared_error"
+        metric_name = "Mean Squared Error Metric"
         metric = get_metric(metric_name)
         self.assertIsInstance(metric, MeanSquaredError)
 
-        metric_name = "auc_roc"
+        metric_name = "Macro Recall Metric"
         metric = get_metric(metric_name)
-        self.assertIsInstance(metric, AucRoc)
+        self.assertIsInstance(metric, MacroRecall)
 
     def test_mean_squared_error(self) -> None:
         """
@@ -45,15 +45,15 @@ class TestMetric(unittest.TestCase):
         expected = np.mean((self.ground_truth_reg - self.prediction_reg) ** 2)
         self.assertAlmostEqual(result, expected, places=5)
 
-    def test_auc_roc(self) -> None:
+    def test_recall(self) -> None:
         """
-        Test if the auc_roc function returns the correct value.
+        Test if the macro recall function returns the correct value.
         """
-        auc = AucRoc()
+        recall = MacroRecall()
         ground_truth = np.array([0, 0, 1, 1])
-        prediction = np.array([0.1, 0.4, 0.35, 0.8])
-        result = auc(ground_truth, prediction)
-        expected = 0.75
+        prediction = np.array([0, 1, 1, 0])
+        expected = 0.5
+        result = recall(prediction, ground_truth)
         self.assertAlmostEqual(result, expected, places=2)
 
     def test_accuracy(self) -> None:
@@ -108,7 +108,3 @@ class TestMetric(unittest.TestCase):
         ]
         expected = np.mean(precisions)
         self.assertAlmostEqual(result, expected, places=5)
-
-
-if __name__ == "__main__":
-    unittest.main()
