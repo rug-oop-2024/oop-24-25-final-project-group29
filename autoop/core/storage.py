@@ -73,7 +73,7 @@ class LocalStorage(Storage):
         with open(path, 'rb') as f:
             return f.read()
 
-    def delete(self, key: str = "/"):
+    def delete(self, key: str = "/") -> None:
         path = self._join_path(key)
         self._assert_path_exists(path)
         os.remove(path)

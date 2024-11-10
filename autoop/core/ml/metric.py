@@ -1,13 +1,15 @@
 from abc import ABC, abstractmethod
 import numpy as np
 
-
-METRICS = [
+REGRESSION_METRICS = [
     "Mean Squared Error Metric",
-    "Accuracy Metric",
     "Mean Absolute Error Metric",
-    "R Squared Metric",
-    "Macro Metric",
+    "R Squared Metric"
+]
+
+CLASSIFICATION_METRICS = [
+    "Accuracy Metric",
+    "Macro Recall Metric",
     "Precision Metric"
 ]
 
@@ -39,7 +41,8 @@ def get_metric(
         return Precision()
     else:
         raise ValueError(
-            f"No metric called: {name}, Can only do metrics: {METRICS}"
+            f"No metric called: {name}, can only do metrics: "
+            f"{REGRESSION_METRICS}{CLASSIFICATION_METRICS}"
             )
 
 

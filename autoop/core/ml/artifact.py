@@ -59,6 +59,17 @@ class Artifact():
         """
         return self._name
 
+    @name.setter
+    def name(self, new_name: str) -> None:
+        """
+        Parameters:
+        new_name: str
+            new name to change the artifact name to
+        """
+        if not isinstance(new_name, str):
+            raise TypeError("new_name must be a string")
+        self._name = new_name
+
     @property
     def data(self) -> bytes:
         """

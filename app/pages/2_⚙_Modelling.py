@@ -9,8 +9,12 @@ from autoop.core.ml.artifact import Artifact
 from autoop.functional.feature import detect_feature_types
 from autoop.core.ml.pipeline import Pipeline
 from autoop.core.ml.feature import Feature
-from autoop.core.ml.metric import Metric, get_metric
-from autoop.core.ml.model import get_model
+from autoop.core.ml.metric import (
+    Metric, get_metric, CLASSIFICATION_METRICS, REGRESSION_METRICS
+    )
+from autoop.core.ml.model import (
+    get_model, CLASSIFICATION_MODELS, REGRESSION_MODELS
+    )
 
 
 st.set_page_config(page_title="Modelling", page_icon="📈")
@@ -37,18 +41,14 @@ def _get_metrics_list(metric_names: List[str]) -> List[Metric]:
         metric_list.append(get_metric(metric_name))
     return metric_list
 
-def _get_input_features(input_features_names: List[str]) -> List[Feature]:
-    input_features_list = []
-    for name in input_features_names:
-        
-        input_features_list.append(features[index])
+
+def _get_pipeline_artifact(pipeline: Pipeline) -> Artifact:
+    for artifact in pipeline.artifacts:
+        if artifact.name == "pipeline_config":
+            return artifact
 
 
 st.write("# ⚙ Modelling")
-write_helper_text(
-    "In this section, you can design a machine learning pipeline to train "
-    "a model on a dataset."
-    )
 
 automl = AutoMLSystem.get_instance()
 
@@ -93,36 +93,20 @@ if dataset_name:
         if features[target_index].type == "numerical":
             task_type = st.selectbox(
                 "Select regression model",
-                options=[
-                    "Ridge Regression Model",
-                    "Lasso Regression Model",
-                    "Multiple Linear Regression Model"
-                    ]
+                options=REGRESSION_MODELS
             )
             metric_names = st.multiselect(
                 "Select a regression metric to evaluate the model",
-                options=[
-                    "Mean Squared Error Metric",
-                    "Mean Absolute Error Metric",
-                    "R Squared Metric"
-                ]
+                options=REGRESSION_METRICS
             )
         else:
             task_type = st.selectbox(
                 "Select classification models",
-                options=[
-                    "Support Vector Machine Model",
-                    "Logistic Regression Model",
-                    "K-Nearest Neighbors Model"
-                    ]
+                options=CLASSIFICATION_MODELS
             )
             metric_names = st.multiselect(
                 "Select a classification to evaluate the model",
-                options=[
-                    "Accuracy Metric",
-                    "Macro Recall Metric",
-                    "Precision Metric"
-                ]
+                options=CLASSIFICATION_METRICS
             )
 
         split = st.slider(
@@ -131,26 +115,64 @@ if dataset_name:
             max_value=90
         )
 
-        if st.button("Start Pipeline"):
-            st.write(task_type)
-            pipeline = Pipeline(
-                metrics=_get_metrics_list(metric_names),
-                dataset=chosen_dataset,
-                model=get_model(task_type),
-                input_features=input_features,
-                target_feature=target_feature,
-                split=split/100
-            )
+        pipeline = Pipeline(
+            metrics=_get_metrics_list(metric_names),
+            dataset=chosen_dataset,
+            model=get_model(task_type),
+            input_features=input_features,
+            target_feature=target_feature,
+            split=split/100
+        )
 
+        pipeline_name = st.text_input(
+                    "Enter a name for this pipeline"
+                    )
+        pipeline_version = st.text_input(
+                "Enter a version for this pipeline"
+                )
+        if pipeline_name:
+            pipeline_asset_path = f"pipelines/{pipeline_name}"
+            st.write(pipeline_asset_path)
+
+        execute_pipeline_button = False
+        save_pipeline_button = False
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Execute Pipeline"):
+                execute_pipeline_button = True
+        with col2:
+            if st.button("Save Pipeline"):
+                save_pipeline_button = True
+
+        if execute_pipeline_button:
             st.markdown(f"""
-            # ✨ Pipeline Summary ✨
+                # Summary
 
-            📊 **Metrics**: {metric_names} \n
-            🗂️ **Dataset**: {chosen_dataset.name} \n
-            🤖 **Model**: {task_type} \n
-            🔍 **Input Features**: {input_features_names} \n
-            🎯 **Target Feature**: {target_feature_name} \n
-            ✂️ **Train/Test Split**: {split}%/{100-split}%
-            """, unsafe_allow_html=True)
+                📊 **Metrics**: {metric_names} \n
+                🗂️ **Dataset**: {chosen_dataset.name} \n
+                🤖 **Model**: {task_type} \n
+                🔍 **Input Features**: {input_features_names} \n
+                🎯 **Target Feature**: {target_feature_name} \n
+                ✂️ **Train/Test Split**: {split}%/{100-split}%
+                """, unsafe_allow_html=True)
+            result = pipeline.execute()
+            st.write(result)
 
-            st.write(pipeline.execute())
+        if save_pipeline_button:
+            if not pipeline_name:
+                st.warning(
+                    "Please enter a name for the pipeline before you save"
+                    )
+            if not pipeline_version:
+                st.warning(
+                    "Please enter a version for the pipeline before you save"
+                    )
+            if pipeline_name and pipeline_version:
+                pipeline_artifact = _get_pipeline_artifact(pipeline)
+                user_pipeline_artifact = Artifact(
+                    name=pipeline_name,
+                    data=pipeline_artifact.data,
+                    type="pipeline",
+                    asset_path=pipeline_asset_path
+                )
+                automl.registry.register(user_pipeline_artifact)
