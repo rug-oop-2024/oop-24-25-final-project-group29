@@ -8,6 +8,7 @@ from autoop.core.ml.artifact import Artifact
 from autoop.core.ml.model import Model
 from autoop.core.ml.dataset import Dataset
 
+automl = AutoMLSystem.get_instance()
 
 st.set_page_config(page_title="Deployment", page_icon='🚀')
 
@@ -39,8 +40,6 @@ def _get_pipeline_model(base_artifact: Artifact) -> Model:
             return pickle.loads(artifact.data)
 
 
-automl = AutoMLSystem.get_instance()
-
 st.title("Deployment")
 st.write("Here the user can manage the pipelines.")
 
@@ -49,30 +48,26 @@ with st.expander("Manage Pipelines", expanded=True):
     pipeline_artifacts = automl.registry.list(type="pipeline")
     pipeline_names = [artifact.name for artifact in pipeline_artifacts]
 
-    selected_pipeline_names = st.multiselect(
+    selected_pipeline_name = st.selectbox(
         'Select pipelines to manage',
         pipeline_names
     )
 
-    if selected_pipeline_names:
-        selected_pipelines = [pipeline_artifacts[pipeline_names.index(name)] for name in selected_pipeline_names]
+    if selected_pipeline_name:
+        selected_pipeline = pipeline_artifacts[
+            pipeline_names.index(selected_pipeline_name)]
 
-        col1, col2 = st.columns(2)
-        view_button = col1.button("View Pipelines")
-        delete_button = col2.button("Delete Selected Pipelines")
-
-        if view_button:
-            for pipeline_artifact in selected_pipelines:
-                pipeline_config = _get_pipeline_config(pipeline_artifact)
-                if pipeline_config:
-                    st.subheader(f"Pipeline: {pipeline_artifact.name}")
-                    st.write(f"Input Features: {', '.join(pipeline_config[
-                        'input_features'
-                        ])}")
-                    st.write(f"Target Feature: {pipeline_config[
-                        'target_feature'
-                        ]}")
-                    st.write(f"Train/Test Split: {pipeline_config['split']}")
+        if st.button("View Pipeline"):
+            pipeline_config = _get_pipeline_config(selected_pipeline)
+            if pipeline_config:
+                st.subheader(f"Pipeline: {selected_pipeline.name}")
+                st.write(f"Input Features: {', '.join(pipeline_config[
+                    'input_features'
+                    ])}")
+                st.write(f"Target Feature: {pipeline_config[
+                    'target_feature'
+                    ]}")
+                st.write(f"Train/Test Split: {pipeline_config['split']}")
 
         # if delete_button:
         #     for current in selected_pipelines:
