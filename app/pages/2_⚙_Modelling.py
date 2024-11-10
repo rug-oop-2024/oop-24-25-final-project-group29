@@ -176,3 +176,4 @@ if dataset_name:
                     asset_path=pipeline_asset_path
                 )
                 automl.registry.register(user_pipeline_artifact)
+                st.write(f"saved! {pipeline_name} {pipeline_version}")

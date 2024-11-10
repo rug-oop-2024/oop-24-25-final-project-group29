@@ -8,7 +8,7 @@ from autoop.core.storage import Storage
 
 class Database():
 
-    def __init__(self, storage: Storage):
+    def __init__(self, storage: Storage) -> None:
         self._storage = storage
         self._data = {}
         self._load()
