@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import io
+import re
 from typing import List
 
 from app.core.system import AutoMLSystem
@@ -129,11 +130,18 @@ if dataset_name:
                     "Enter a name for this pipeline"
                     )
         pipeline_version = st.text_input(
-                "Enter a version for this pipeline"
+                "Enter a version for this pipeline", "v_1"
                 )
         if pipeline_name:
+            pipeline_name = re.sub(r'[^a-zA-Z0-9_]', '_', pipeline_name)
             pipeline_asset_path = f"pipelines/{pipeline_name}.pkl"
-            st.write(pipeline_asset_path)
+        if pipeline_version:
+            pipeline_version = pipeline_version.strip()
+            if not re.search(r"^v_\d+$", pipeline_version):
+                st.error(
+                    "Invalid version format. Please use the format 'v_X', "
+                    "where X is a number."
+                    )
 
         execute_pipeline_button = False
         save_pipeline_button = False
@@ -169,7 +177,6 @@ if dataset_name:
                     "Please enter a version for the pipeline before you save"
                     )
             if pipeline_name and pipeline_version:
-                st.write(pipeline_asset_path)
                 pipeline_artifact = _get_pipeline_artifact(pipeline)
                 user_pipeline_artifact = Artifact(
                     name=pipeline_name,
