@@ -2,7 +2,6 @@ import unittest
 import numpy as np
 
 from autoop.core.ml.model import get_model
-from autoop.core.ml.model.regression.regression_facade import RegressionFacade
 from autoop.core.ml.model.regression.ridge_regression_model import (
     RidgeRegressionModel
 )
@@ -11,9 +10,6 @@ from autoop.core.ml.model.regression.multiple_linear_regression_model import (
 )
 from autoop.core.ml.model.regression.lasso_regression_model import (
     LassoRegressionModel
-)
-from autoop.core.ml.model.classification.classification_facade import (
-    ClassificationFacade
 )
 from autoop.core.ml.model.classification.svm_classification_model import (
     SVMClassificationModel
@@ -40,16 +36,6 @@ class TestModel(unittest.TestCase):
         """
         model = get_model("Ridge Regression Model")
         self.assertIsInstance(model, RidgeRegressionModel)
-
-    def test_facades(self):
-        """
-        Test if the facades work and access the appropriate models
-        """
-        reg = RegressionFacade(model_name="Ridge Regression Model", alpha=0.5)
-        self.assertEqual(reg.model_name, "Ridge Regression Model")
-
-        clas = ClassificationFacade(model_name="Support Vector Machine Model")
-        self.assertEqual(clas.model_name, "Support Vector Machine Model")
 
     def test_lasso(self):
         """

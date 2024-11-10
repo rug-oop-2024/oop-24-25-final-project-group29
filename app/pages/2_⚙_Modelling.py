@@ -179,6 +179,8 @@ if dataset_name:
             if pipeline_name and pipeline_version:
                 pipeline_artifact = _get_pipeline_artifact(pipeline)
                 user_pipeline_artifact = Artifact(
+                    metrics=[],
+                    # model=
                     name=pipeline_name,
                     data=pipeline_artifact.data,
                     type="pipeline",

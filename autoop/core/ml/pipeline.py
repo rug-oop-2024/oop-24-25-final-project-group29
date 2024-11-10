@@ -185,6 +185,9 @@ Pipeline(
         self._preprocess_features()
         self._split_data()
 
+        if self._train_y.ndim > 1:
+            self._train_y = self._train_y.ravel()
+
         self._train()
         self._evaluate()
 
