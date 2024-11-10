@@ -55,7 +55,6 @@ class TestArtifact(unittest.TestCase):
             with patch("builtins.open", mock_open()) as mocked_file:
                 self.artifact.save(self.data)
 
-
     def test_save_method_invalid_path(self):
         """
         Test that a NotFoundError is raised when the asset path does not exist.

@@ -54,24 +54,3 @@ class RidgeRegressionModel(Model):
             The predictions
         """
         return self._model.predict(x)
-
-    # def _save_model(self) -> bytes:
-    #     """
-    #     Saves the model parameters to a binary format.
-
-    #     Returns
-    #     bytes:
-    #         serialized model parameters
-    #     """
-    #     parameters = np.array(
-    #         [self._intercept] + list(self._coef)
-    #         ).astype(np.float32)
-    #     return parameters.tobytes()
-
-    # def _load_model(self, parameters: bytes) -> None:
-    #     """
-    #     Load the model parameters from a binary format.
-    #     """
-    #     parameters = np.frombuffer(parameters, dtype=np.float32)
-    #     self._intercept = parameters[0]
-    #     self._coef = parameters[1:]
