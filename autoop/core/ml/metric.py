@@ -248,11 +248,10 @@ class Rsquared(Metric):
         Returns:
             float: R Squared
         """
-        total_sum_of_squared = np.sum(
-            (observations - np.mean(observations)) ** 2
-            )
-        residual_sum_of_squared = np.sum((observations - ground_truth) ** 2)
-        return 1 - residual_sum_of_squared / total_sum_of_squared
+        total_sum_squares = np.sum((observations - np.mean(observations)) ** 2)
+        residual_sum_squares = np.sum((observations - ground_truth) ** 2)
+        r_squared = 1 - (residual_sum_squares / total_sum_squares)
+        return r_squared
 
     def name(self) -> str:
         """

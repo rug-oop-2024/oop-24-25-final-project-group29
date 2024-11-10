@@ -4,6 +4,7 @@ import io
 import re
 import pickle
 from typing import List
+import numpy as np
 
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
@@ -158,7 +159,49 @@ if dataset_name:
                 ✂️ **Train/Test Split**: {split}%/{100-split}%
                 """, unsafe_allow_html=True)
             result = pipeline.execute()
-            st.write(result)
+
+            st.subheader("Training Metrics")
+            train_metrics_df = pd.DataFrame(
+                result["train metrics"], columns=["Metric", "Value"]
+                )
+            st.table(train_metrics_df)
+
+            st.subheader("Testing Metrics")
+            test_metrics_df = pd.DataFrame(
+                result["test metrics"], columns=["Metric", "Value"]
+                )
+            st.table(test_metrics_df)
+
+            st.subheader("Training set Predictions (first 10)")
+            st.write(
+                pd.DataFrame(
+                    result["train predictions"], columns=["Prediction"]
+                    ).head(10)
+                )
+
+            st.subheader("Testing set Predictions (first 10)")
+            st.write(
+                pd.DataFrame(
+                    result["test predictions"], columns=["Prediction"]
+                    ).head(10)
+                )
+
+            st.download_button(
+                label="Download Train Predictions as CSV",
+                data=pd.DataFrame(
+                    result["train predictions"], columns=["Prediction"]
+                    ).to_csv(index=False),
+                file_name="train_predictions.csv",
+                mime="text/csv"
+            )
+            st.download_button(
+                label="Download Test Predictions as CSV",
+                data=pd.DataFrame(
+                    result["test predictions"], columns=["Prediction"]
+                    ).to_csv(index=False),
+                file_name="test_predictions.csv",
+                mime="text/csv"
+            )
 
         if save_pipeline_button:
             if not pipeline_name:
