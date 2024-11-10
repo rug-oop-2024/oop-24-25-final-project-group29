@@ -5,14 +5,14 @@ from glob import glob
 
 
 class NotFoundError(Exception):
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         super().__init__(f"Path not found: {path}")
 
 
 class Storage(ABC):
 
     @abstractmethod
-    def save(self, data: bytes, path: str):
+    def save(self, data: bytes, path: str) -> None:
         """
         Save data to a given path
         Args:
@@ -55,12 +55,12 @@ class Storage(ABC):
 
 class LocalStorage(Storage):
 
-    def __init__(self, base_path: str = "./assets"):
+    def __init__(self, base_path: str = "./assets") -> None:
         self._base_path = os.path.normpath(base_path)
         if not os.path.exists(self._base_path):
             os.makedirs(self._base_path)
 
-    def save(self, data: bytes, key: str):
+    def save(self, data: bytes, key: str) -> None:
         path = self._join_path(key)
         # Ensure parent directories are created
         os.makedirs(os.path.dirname(path), exist_ok=True)
