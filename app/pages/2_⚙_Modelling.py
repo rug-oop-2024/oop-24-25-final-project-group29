@@ -131,6 +131,7 @@ if dataset_name:
                 "Enter a version for this pipeline"
                 )
         if pipeline_name:
+            pipeline_name = pipeline_name.replace(" ", "_")
             pipeline_asset_path = f"pipelines/{pipeline_name}.pkl"
             st.write(pipeline_asset_path)
 
