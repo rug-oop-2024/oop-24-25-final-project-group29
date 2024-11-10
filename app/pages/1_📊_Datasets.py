@@ -72,4 +72,3 @@ if dataset_names:
         for current in selected_datasets:
             automl.registry.delete(current.id)
         st.success("Dataset deleted!")
-        st.rerun()
