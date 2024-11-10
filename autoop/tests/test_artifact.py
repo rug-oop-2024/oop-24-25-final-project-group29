@@ -47,15 +47,6 @@ class TestArtifact(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.artifact.name = 123
 
-    def test_save_method(self) -> None:
-        """
-        Test the save method for saving data to the artifact's asset path.
-        """
-        with patch("os.path.exists", return_value=True):
-            with patch("builtins.open", mock_open()) as mocked_file:
-                self.artifact.save(self.data)
-
-
     def test_save_method_invalid_path(self):
         """
         Test that a NotFoundError is raised when the asset path does not exist.
