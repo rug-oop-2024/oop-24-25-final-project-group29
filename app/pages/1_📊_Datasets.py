@@ -44,26 +44,30 @@ if uploaded_file:
         st.success("Dataset added!")
         st.rerun()
 
-name = st.selectbox(
-    'Select a dataset',
+dataset_names = st.multiselect(
+    'Select datasets to manage',
     dataset_display_names
     )
-if name:
-    dataset = datasets[dataset_display_names.index(name)]
+if dataset_names:
+    selected_datasets = []
+    for name in dataset_names:
+        selected_datasets.append(datasets[dataset_display_names.index(name)])
 
     col1, col2 = st.columns(2)
     view_button = False
     delete_button = False
     with col1:
-        if st.button("View Dataset"):
+        if st.button("View Datasets"):
             view_button = True
     with col2:
-        if st.button("Delete Dataset"):
+        if st.button("Delete Selected Datasets"):
             delete_button = True
 
     if view_button:
-        st.dataframe(dataset.read())
+        for current in selected_datasets:
+            st.dataframe(current.read())
     if delete_button:
-        automl.registry.delete(dataset.id)
+        for current in selected_datasets:
+            automl.registry.delete(current.id)
         st.success("Dataset deleted!")
         st.rerun()

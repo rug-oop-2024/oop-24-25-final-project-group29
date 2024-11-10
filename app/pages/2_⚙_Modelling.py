@@ -176,9 +176,6 @@ if dataset_name:
                     data=pipeline_artifact.data,
                     type="pipeline",
                     asset_path=pipeline_asset_path,
-                    metadata=Model(
-                        type=pipeline.model.type,
-                    )
                 )
                 automl.registry.register(user_pipeline_artifact)
                 st.success("Pipeline saved successfully")

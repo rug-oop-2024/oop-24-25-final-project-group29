@@ -17,7 +17,7 @@ def _convert_artifacts_to_pipelines(
         input_features = pipeline_data["input_features"]
         target_feature = pipeline_data["target_feature"]
         split = pipeline_data["split"]
-
+        model = 
 
         pipeline = Pipeline(
             metrics=None,

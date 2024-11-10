@@ -5,14 +5,14 @@ from glob import glob
 
 
 class NotFoundError(Exception):
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         super().__init__(f"Path not found: {path}")
 
 
 class Storage(ABC):
 
     @abstractmethod
-    def save(self, data: bytes, path: str):
+    def save(self, data: bytes, path: str) -> None:
         """
         Save data to a given path
         Args:
