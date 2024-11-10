@@ -2,15 +2,14 @@ import streamlit as st
 import pandas as pd
 import io
 import re
+import pickle
 from typing import List
 
 from app.core.system import AutoMLSystem
 from autoop.core.ml.dataset import Dataset
 from autoop.core.ml.artifact import Artifact
-from autoop.core.ml.model import Model
 from autoop.functional.feature import detect_feature_types
 from autoop.core.ml.pipeline import Pipeline
-from autoop.core.ml.feature import Feature
 from autoop.core.ml.metric import (
     Metric, get_metric, CLASSIFICATION_METRICS, REGRESSION_METRICS
     )
@@ -42,12 +41,6 @@ def _get_metrics_list(metric_names: List[str]) -> List[Metric]:
     for metric_name in metric_names:
         metric_list.append(get_metric(metric_name))
     return metric_list
-
-
-def _get_pipeline_artifact(pipeline: Pipeline) -> Artifact:
-    for artifact in pipeline.artifacts:
-        if artifact.name == "pipeline_config":
-            return artifact
 
 
 st.write("# ⚙ Modelling")
@@ -177,14 +170,11 @@ if dataset_name:
                     "Please enter a version for the pipeline before you save"
                     )
             if pipeline_name and pipeline_version:
-                pipeline_artifact = _get_pipeline_artifact(pipeline)
                 user_pipeline_artifact = Artifact(
-                    metrics=[],
-                    # model=
                     name=pipeline_name,
-                    data=pipeline_artifact.data,
+                    data=pickle.dumps(pipeline.artifacts),
                     type="pipeline",
-                    asset_path=pipeline_asset_path,
+                    asset_path=pipeline_asset_path
                 )
                 automl.registry.register(user_pipeline_artifact)
                 st.success("Pipeline saved successfully")

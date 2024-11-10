@@ -84,12 +84,12 @@ class Metric(ABC):
         """
         pass
 
-    def evaluate(self, ground_truth, y) -> float:
+    def evaluate(self, predictions: np.ndarray, ground_truth: np.ndarray) -> float:
         """
         Gets the metric and uses the functions __call__ and name from the
         specific metric to calculate the metric value.
         """
-        return self.__call__(y, ground_truth)
+        return self.__call__(predictions, ground_truth)
 
 
 class MeanSquaredError(Metric):
